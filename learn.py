@@ -2,20 +2,40 @@ import pandas as pd
 import numpy as np
 from sklearn import svm, metrics, model_selection
 from sklearn.neighbors import KNeighborsClassifier
+import pickle
+knn = KNeighborsClassifier(n_neighbors=1)
 
-allData = pd.read_csv('data.csv')
-'''
-plt.scatter(allData['cp'], allData['num'])
-plt.show()
-'''
-data = allData[['cp', 'co', 'ep', 'eo']]
-label = allData['num']
+load_mode = False
 
-train_data, test_data, train_label, test_label = model_selection.train_test_split(data, label)
+filename = 'model.sav'
+if load_mode:
+    pre = pickle.load(open(filename, 'rb'))
+else:
+    allData = pd.read_csv('data.csv')
+    '''
+    plt.scatter(allData['cp'], allData['num'])
+    plt.show()
+    '''
+    data = allData[[str(i) for i in range(40)]]
+    label = allData['num']
 
-clf = svm.SVC()
-clf.fit(train_data, train_label)
-pre = clf.predict(test_data)
+    train_data, test_data, train_label, test_label = model_selection.train_test_split(data, label)
 
-ac_score = metrics.accuracy_score(test_label, pre)
-print("正解率 =", ac_score)
+    clf = svm.SVC()
+    clf.fit(train_data, train_label)
+    pre = clf.predict(test_data)
+
+    pickle.dump(pre, open(filename, 'wb'))
+
+    print('learning done')
+
+    ac_score = metrics.accuracy_score(test_label, pre)
+    print("正解率 =", ac_score)
+
+newdata = np.array([[6, 2, 3, 5, 4, 7, 0, 1, 2, 1, 2, 0, 2, 1, 1, 0, 0, 8, 2, 9, 10, 6, 1, 3, 4, 5, 11, 7, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0]])
+print("newdata.shape: {}".format(newdata.shape))
+
+knn.fit(train_data, train_label)
+
+prediction = knn.predict(newdata)
+print("Predicted target name: {}".format(prediction))

@@ -93,6 +93,7 @@ class Cube:
         return Cube(cp=self.move_cp(mov), co=self.move_co(mov), ep=self.move_ep(mov), eo=self.move_eo(mov))
     
     def idx(self):
+        '''
         idx_cp = 0 # max 40320
         for i in range(8):
             cnt = self.Cp[i]
@@ -116,6 +117,13 @@ class Cube:
             idx_eo *= 2
             idx_eo += self.Eo[i]
         return idx_cp, idx_co, idx_ep, idx_eo
+        '''
+        res = []
+        res.extend(self.Cp)
+        res.extend(self.Co)
+        res.extend(self.Ep)
+        res.extend(self.Eo)
+        return res
 
 def face(twist):
     return twist // 3

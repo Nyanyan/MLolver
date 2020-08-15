@@ -6,23 +6,27 @@ move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", 
 
 max_depth = 20
 new_branch_min = 1
-new_branch_max = 2
+new_branch_max = 1
 now_depth = 0
 def generate(cube, depth):
     global res, now_depth
-    if depth == max_depth:
+    if depth == max_depth + 1:
         return
     for _ in range(randint(new_branch_min, new_branch_max)):
         n_cube = cube.move(randint(0, 17))
-        cp, co, ep, eo = n_cube.idx()
-        res.append([cp, cp, ep, eo, depth + 1])
+        arr = n_cube.idx()
+        arr.append(depth + 1)
+        res.append(arr)
         generate(n_cube, depth + 1)
 
 res = []
 cube = Cube()
-cp, co, ep, eo = cube.idx()
-res.append(['cp', 'co', 'ep', 'eo', 'num'])
-res.append([cp, co, ep, eo, 0])
+arr = cube.idx()
+arr.append(0)
+label = list(range(40))
+label.append('num')
+res.append(label)
+res.append(arr)
 generate(cube, 0)
 
 with open('data.csv', mode='w') as f:
