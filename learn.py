@@ -1,22 +1,21 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
+import numpy as np
+from sklearn import svm, metrics, model_selection
+from sklearn.neighbors import KNeighborsClassifier
+
 allData = pd.read_csv('data.csv')
-
-plt.scatter(allData['cp'],allData['num'])
+'''
+plt.scatter(allData['cp'], allData['num'])
 plt.show()
+'''
+data = allData[['cp', 'co', 'ep', 'eo']]
+label = allData['num']
 
-X1 = allData[['cp']]
-Y1 = allData['num']
-model1 = LinearRegression()
-model1.fit(X1, Y1)
+train_data, test_data, train_label, test_label = model_selection.train_test_split(data, label)
 
-plt.scatter(allData['cp'],allData['num'])
-plt.plot(X1, model1.predict(X1))
-plt.show()
+clf = svm.SVC()
+clf.fit(train_data, train_label)
+pre = clf.predict(test_data)
 
-model1.predict(4000)
-
-print(model1.coef_)
-print(model1.intercept_)
-print(model1.score(X1, Y1))
+ac_score = metrics.accuracy_score(test_label, pre)
+print("正解率 =", ac_score)
