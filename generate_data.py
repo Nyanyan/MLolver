@@ -4,7 +4,7 @@ from random import randint
 
 move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", "D'", "F", "F2", "F'", "B", "B2", "B'"]
 
-num = 50000
+num = 100000
 t = 0
 
 max_depth = 20
