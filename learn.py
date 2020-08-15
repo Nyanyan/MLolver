@@ -19,7 +19,7 @@ else:
     label = allData['num']
 
     train_data, test_data, train_label, test_label = model_selection.train_test_split(data, label)
-
+    '''
     clf = svm.SVC()
     clf.fit(train_data, train_label)
     pre = clf.predict(test_data)
@@ -28,7 +28,7 @@ else:
 
     ac_score = metrics.accuracy_score(test_label, pre)
     print("正解率 =", ac_score)
-    
+    '''
     knn = KNeighborsClassifier(n_neighbors=1)
     knn.fit(train_data, train_label)
     pickle.dump(knn, open(filename, 'wb'))
