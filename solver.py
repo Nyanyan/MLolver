@@ -15,13 +15,12 @@ def distance(puzzle):
     #print(res)
     return res
 
-def search(puzzle, depth):
+def search(puzzle, depth, dis):
     global path
     if depth == 0:
-        if distance(puzzle) == 0:
+        if dis == 0:
             return True
     else:
-        dis = distance(puzzle)
         if dis == 0:
             return True
         if dis <= depth:
@@ -31,19 +30,24 @@ def search(puzzle, depth):
                 if face(twist) == face(l_twist) or axis(twist) == axis(l_twist) == axis(ll_twist):
                     continue
                 n_puzzle = puzzle.move(twist)
+                n_dis = distance(n_puzzle)
+                if n_dis > dis:
+                    continue
                 path.append(twist)
                 if search(n_puzzle, depth - 1):
                     return True
                 path.pop()
+        return False
 
 def solver(puzzle):
     global path
     print('depth', end=' ',flush=True)
     strt = time()
+    dis = distance(puzzle)
     for depth in range(30):
         print(depth, end=' ', flush=True)
         path = []
-        if search(puzzle, depth):
+        if search(puzzle, depth, dis):
             for twist in path:
                 puzzle = puzzle.move(twist)
             print('')
@@ -61,12 +65,13 @@ filename = 'model.sav'
 knn = pickle.load(open(filename, 'rb'))
 
 scramble = [move_candidate.index(i) for i in input().split()]
-print(len(scramble))
-print(scramble)
+print('distance', len(scramble))
+#print(scramble)
 
 puzzle = Cube()
 for i in scramble:
     puzzle = puzzle.move(i)
+print('predicted', distance(puzzle))
 
 path = []
 solver(puzzle)
