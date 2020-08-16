@@ -15,13 +15,13 @@ def generate(cube, depth, l_twist):
     global res, t
     if depth == max_depth:
         return
-    if t >= num:
-        return
     if depth > 3:
         tmp = range(randint(new_branch_min, new_branch_max))
     else:
         tmp = range(18)
     for _ in tmp:
+        if depth > 3 and t >= num:
+            continue
         twist = l_twist
         while twist // 3 == l_twist // 3:
             twist = randint(0, 17)

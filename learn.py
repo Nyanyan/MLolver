@@ -36,7 +36,7 @@ else:
     knn = KNeighborsClassifier(n_neighbors=2)
     knn.fit(train_data, train_label)
     '''
-    clf = tree.DecisionTreeClassifier(max_depth=8)
+    clf = tree.DecisionTreeClassifier(max_depth=10)
     clf = clf.fit(train_data, train_label)
 
     pickle.dump(clf, open(filename, 'wb'))
@@ -64,4 +64,4 @@ for i in range(100):
 ans /= 100
 ans2 /= 100
 print('average error', ans)
-print('ratio', ans2)
+print('correct ratio', ans2)
