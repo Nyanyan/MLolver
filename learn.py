@@ -4,7 +4,7 @@ from sklearn import svm, metrics, model_selection
 from sklearn.neighbors import KNeighborsClassifier
 import pickle
 
-load_mode = True
+load_mode = False
 
 filename = 'model.sav'
 if load_mode:
