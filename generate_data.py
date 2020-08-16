@@ -30,12 +30,9 @@ def generate(cube, depth, l_twist):
 
 res = []
 cube = Cube()
-arr = cube.idx()
-arr.append(0)
-label = list(range(40))
+label = list(range(54))
 label.append('num')
 res.append(label)
-res.append(arr)
 generate(cube, 0, -10)
 
 with open('data.csv', mode='w') as f:

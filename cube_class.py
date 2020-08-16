@@ -123,8 +123,23 @@ class Cube:
         res.extend(self.Ep)
         res.extend(self.Eo)
         '''
-        res = []
-        
+        res = [-1 for _ in range(54)]
+        for i in range(6):
+            res[i * 9 + 4] = i
+        corner_colors = [[0, 4, 3], [0, 3, 2], [0, 1, 4], [0, 2, 1], [5, 4, 1], [5, 1, 2], [5, 3, 4], [5, 2, 3]]
+        edge_colors = [[0, 3], [0, 2], [0, 1], [0, 4], [1, 4], [1, 2], [3, 2], [3, 4], [5, 1], [5, 2], [5, 3], [5, 4]]
+        corner_stickers = [[0, 36, 29], [2, 27, 20], [6, 9, 38], [8, 18, 11], [45, 44, 15], [47, 17, 24], [51, 35, 42], [53, 26, 33]]
+        edge_stickers = [[1, 28], [5, 19], [7, 10], [3, 37], [12, 41], [14, 21], [30, 23], [32, 39], [46, 16], [50, 25], [52, 34], [48, 43]]
+        for corner_idx in range(8):
+            corner = self.Cp[corner_idx]
+            co = self.Co[corner_idx]
+            for i, j in enumerate(corner_stickers[corner_idx]):
+                res[j] = corner_colors[corner][(i - co) % 3]
+        for edge_idx in range(12):
+            edge = self.Ep[edge_idx]
+            eo = self.Eo[edge_idx]
+            for i, j in enumerate(edge_stickers[edge_idx]):
+                res[j] = edge_colors[edge][(i - eo) % 2]
         return res
 
 def face(twist):
