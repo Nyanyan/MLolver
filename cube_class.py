@@ -117,12 +117,14 @@ class Cube:
             idx_eo *= 2
             idx_eo += self.Eo[i]
         return idx_cp, idx_co, idx_ep, idx_eo
-        '''
         res = []
         res.extend(self.Cp)
         res.extend(self.Co)
         res.extend(self.Ep)
         res.extend(self.Eo)
+        '''
+        res = []
+        
         return res
 
 def face(twist):
