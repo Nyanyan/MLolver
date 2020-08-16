@@ -4,7 +4,7 @@ from sklearn import svm, metrics, model_selection
 from sklearn.neighbors import KNeighborsClassifier
 import pickle
 
-load_mode = False
+load_mode = True
 
 filename = 'model.sav'
 if load_mode:
@@ -34,12 +34,21 @@ else:
     knn = KNeighborsClassifier(n_neighbors=2)
     knn.fit(train_data, train_label)
     pickle.dump(knn, open(filename, 'wb'))
-    '''
-    ac_score = metrics.accuracy_score(test_label, knn)
-    print("正解率 =", ac_score)
-    '''
-newdata = np.array([[0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 5, 1, 1, 5, 1, 1, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 3, 3, 0, 3, 3, 0, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 3, 5, 5, 3, 5, 5, 3]])
-print("newdata.shape: {}".format(newdata.shape))
+    print('learning done')
 
-prediction = knn.predict(newdata)
-print("Predicted target name: {}".format(prediction))
+test_data = []
+with open('data_test.csv', 'r') as f:
+    f.readline()
+    for _ in range(1000):
+        test_data.append([int(i) for i in f.readline().replace('\n', '').split(',')])
+
+
+ans = 0
+for i in range(1000):
+    newdata = np.array([test_data[i][:54]])
+    answer = test_data[i][54]
+    prediction = knn.predict(newdata)[0]
+    if prediction == answer:
+        ans += 1
+ans /= 1000
+print(ans)

@@ -4,7 +4,7 @@ from random import randint
 
 move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", "D'", "F", "F2", "F'", "B", "B2", "B'"]
 
-num = 500000
+num = 1000 #500000
 t = 0
 
 max_depth = 20
@@ -35,7 +35,7 @@ label.append('num')
 res.append(label)
 generate(cube, 0, -10)
 
-with open('data.csv', mode='w') as f:
+with open('data_test.csv', mode='w') as f:
     writer = csv.writer(f, lineterminator='\n')
     for arr in res:
         writer.writerow(arr)
