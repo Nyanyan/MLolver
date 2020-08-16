@@ -5,11 +5,14 @@ from time import time
 
 def distance(puzzle):
     arr = puzzle.idx()
+    if arr == [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5]:
+        return 0
     data = np.array([arr])
     prediction = knn.predict(data)
     res = prediction[0]
-    if res == 0 and arr != [0, 1, 2, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+    if res == 0:
         res = 1
+    #print(res)
     return res
 
 def search(puzzle, depth):
@@ -18,7 +21,10 @@ def search(puzzle, depth):
         if distance(puzzle) == 0:
             return True
     else:
-        if distance(puzzle) <= depth:
+        dis = distance(puzzle)
+        if dis == 0:
+            return True
+        if dis <= depth:
             l_twist = path[-1] if len(path) >= 1 else -10
             ll_twist = path[-2] if len(path) >= 2 else -10
             for twist in range(18):

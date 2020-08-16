@@ -15,7 +15,7 @@ else:
     plt.scatter(allData['cp'], allData['num'])
     plt.show()
     '''
-    data = allData[[str(i) for i in range(40)]]
+    data = allData[[str(i) for i in range(54)]]
     label = allData['num']
 
     train_data, test_data, train_label, test_label = model_selection.train_test_split(data, label)
@@ -33,7 +33,7 @@ else:
     knn.fit(train_data, train_label)
     pickle.dump(knn, open(filename, 'wb'))
 
-newdata = np.array([[6, 2, 3, 5, 4, 7, 0, 1, 2, 1, 2, 0, 2, 1, 1, 0, 0, 8, 2, 9, 10, 6, 1, 3, 4, 5, 11, 7, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0]])
+newdata = np.array([[0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 5, 1, 1, 5, 1, 1, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 3, 3, 0, 3, 3, 0, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 3, 5, 5, 3, 5, 5, 3]])
 print("newdata.shape: {}".format(newdata.shape))
 
 prediction = knn.predict(newdata)
