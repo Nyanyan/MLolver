@@ -31,10 +31,10 @@ def search(puzzle, depth, dis):
                     continue
                 n_puzzle = puzzle.move(twist)
                 n_dis = distance(n_puzzle)
-                if n_dis > dis:
+                if n_dis > dis + 2:
                     continue
                 path.append(twist)
-                if search(n_puzzle, depth - 1):
+                if search(n_puzzle, depth - 1, n_dis):
                     return True
                 path.pop()
         return False
