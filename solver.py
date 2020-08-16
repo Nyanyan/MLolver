@@ -23,7 +23,7 @@ def search(puzzle, depth, dis):
     else:
         if dis == 0:
             return True
-        if dis <= depth:
+        if dis <= depth + 1:
             l_twist = path[-1] if len(path) >= 1 else -10
             ll_twist = path[-2] if len(path) >= 2 else -10
             for twist in range(18):
@@ -31,7 +31,7 @@ def search(puzzle, depth, dis):
                     continue
                 n_puzzle = puzzle.move(twist)
                 n_dis = distance(n_puzzle)
-                if n_dis > dis + 2:
+                if n_dis > dis + 1:
                     continue
                 path.append(twist)
                 if search(n_puzzle, depth - 1, n_dis):

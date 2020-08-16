@@ -36,19 +36,22 @@ else:
     pickle.dump(knn, open(filename, 'wb'))
     print('learning done')
 
+print('getting test data')
+
 test_data = []
 with open('data_test.csv', 'r') as f:
     f.readline()
-    for _ in range(1000):
+    for _ in range(100):
         test_data.append([int(i) for i in f.readline().replace('\n', '').split(',')])
 
+print('testing')
 
 ans = 0
-for i in range(1000):
+for i in range(100):
     newdata = np.array([test_data[i][:54]])
     answer = test_data[i][54]
     prediction = knn.predict(newdata)[0]
-    if prediction == answer:
+    if abs(prediction - answer):
         ans += 1
-ans /= 1000
-print(ans)
+ans /= 100
+print('average error', ans)
