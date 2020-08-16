@@ -36,7 +36,7 @@ else:
     knn = KNeighborsClassifier(n_neighbors=2)
     knn.fit(train_data, train_label)
     '''
-    clf = tree.DecisionTreeClassifier(max_depth=10)
+    clf = tree.DecisionTreeClassifier(max_depth=150)
     clf = clf.fit(train_data, train_label)
 
     pickle.dump(clf, open(filename, 'wb'))

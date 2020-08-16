@@ -4,11 +4,10 @@ from random import randint
 
 move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", "D'", "F", "F2", "F'", "B", "B2", "B'"]
 
-num = 100000
-t = 0
+t = [0 for _ in range(21)]
 
 max_depth = 20
-new_branch_min = 2
+new_branch_min = 1
 new_branch_max = 2
 now_depth = 0
 def generate(cube, depth, l_twist):
@@ -20,7 +19,7 @@ def generate(cube, depth, l_twist):
     else:
         tmp = range(18)
     for _ in tmp:
-        if depth > 3 and t >= num:
+        if t[depth + 1] >= 1000:
             continue
         twist = l_twist
         while twist // 3 == l_twist // 3:
@@ -29,7 +28,7 @@ def generate(cube, depth, l_twist):
         arr = n_cube.idx()
         arr.append(depth + 1)
         res.append(arr)
-        t += 1
+        t[depth + 1] += 1
         generate(n_cube, depth + 1, twist)
 
 res = []
