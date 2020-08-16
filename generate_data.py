@@ -4,7 +4,7 @@ from random import randint
 
 move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", "D'", "F", "F2", "F'", "B", "B2", "B'"]
 
-num = 10000
+num = 100000
 t = 0
 
 max_depth = 20
@@ -13,7 +13,7 @@ new_branch_max = 2
 now_depth = 0
 def generate(cube, depth, l_twist):
     global res, t
-    if depth == max_depth + 1:
+    if depth == max_depth:
         return
     if t >= num:
         return

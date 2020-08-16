@@ -1,21 +1,22 @@
 import pandas as pd
 import numpy as np
 from sklearn import svm, metrics, model_selection
-from sklearn.neighbors import KNeighborsClassifier
+#from sklearn.neighbors import KNeighborsClassifier
+from sklearn import tree
 import pickle
 
 load_mode = False
 
 filename = 'model.sav'
 if load_mode:
-    knn = pickle.load(open(filename, 'rb'))
+    clf = pickle.load(open(filename, 'rb'))
 else:
     allData = pd.read_csv('data.csv')
     '''
     plt.scatter(allData['cp'], allData['num'])
     plt.show()
     '''
-    data = allData[[str(i) for i in range(54)]]
+    data = allData[[str(i) for i in range(324)]]
     label = allData['num']
 
     #train_data, test_data, train_label, test_label = model_selection.train_test_split(data, label)
@@ -31,9 +32,14 @@ else:
     ac_score = metrics.accuracy_score(test_label, pre)
     print("正解率 =", ac_score)
     '''
+    '''
     knn = KNeighborsClassifier(n_neighbors=2)
     knn.fit(train_data, train_label)
-    pickle.dump(knn, open(filename, 'wb'))
+    '''
+    clf = tree.DecisionTreeClassifier(max_depth=8)
+    clf = clf.fit(train_data, train_label)
+
+    pickle.dump(clf, open(filename, 'wb'))
     print('learning done')
 
 print('getting test data')
@@ -47,11 +53,15 @@ with open('data_test.csv', 'r') as f:
 print('testing')
 
 ans = 0
+ans2 = 0
 for i in range(100):
-    newdata = np.array([test_data[i][:54]])
-    answer = test_data[i][54]
-    prediction = knn.predict(newdata)[0]
-    if abs(prediction - answer):
-        ans += 1
+    newdata = np.array([test_data[i][:324]])
+    answer = test_data[i][324]
+    prediction = clf.predict(newdata)[0]
+    ans += abs(prediction - answer)
+    if prediction == answer:
+        ans2 += 1
 ans /= 100
+ans2 /= 100
 print('average error', ans)
+print('ratio', ans2)
