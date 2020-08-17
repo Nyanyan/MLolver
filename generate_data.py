@@ -19,7 +19,7 @@ def generate(cube, depth, l_twist):
     else:
         tmp = range(18)
     for _ in tmp:
-        if t[depth + 1] >= 1:
+        if t[depth + 1] >= 100:
             continue
         twist = l_twist
         while twist // 3 == l_twist // 3:
@@ -33,9 +33,9 @@ def generate(cube, depth, l_twist):
 
 res = []
 cube = Cube()
-label = list(range(324))
-label.append('num')
-res.append(label)
+#label = list(range(324))
+#label.append('num')
+#res.append(label)
 generate(cube, 0, -10)
 
 with open('data.csv', mode='w') as f:
