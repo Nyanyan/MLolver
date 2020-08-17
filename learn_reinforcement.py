@@ -3,28 +3,15 @@ from keras.layers import Dense
 import numpy as np
 from numpy import loadtxt
 
-def load_csv():
-    file = []
-    with open('data.csv', 'r') as f:
-        f.readline()
-        while True:
-            try:
-                file.append([int(i) for i in f.readline().replace('\n', '').split(',')])
-            except:
-                break
-    data_all = [file[i][:324] for i in range(len(file))]
-    target = [file[i][324] for i in range(len(file))]
-    data = np.array([[[[arr[i + j * 9 + k * 54] for i in range(9)] for j in range(6)] for k in range(6)] for arr in data_all])
-    return data, target, len(file)
-
 #X, y, l = load_csv()
 dataset = loadtxt('data.csv', delimiter=',')
 X = dataset[:,0:324]
 y = dataset[:,324:345]
 
 model = Sequential()
-model.add(Dense(12, input_dim=324, activation='relu'))
-model.add(Dense(8, activation='relu'))
+model.add(Dense(100, input_dim=324, activation='relu'))
+model.add(Dense(50, activation='relu'))
+model.add(Dense(25, activation='relu'))
 model.add(Dense(21, activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -54,3 +41,5 @@ error_average /= len(dataset)
 print(correct_ratio)
 print(error_average)
 print(ans)
+
+model.save('model.h5', include_optimizer=False)
