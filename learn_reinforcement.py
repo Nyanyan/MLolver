@@ -10,8 +10,8 @@ y = dataset[:,324:345]
 
 model = Sequential()
 model.add(Dense(100, input_dim=324, activation='relu'))
-model.add(Dense(50, activation='relu'))
-model.add(Dense(25, activation='relu'))
+model.add(Dense(100, activation='relu'))
+model.add(Dense(100, activation='relu'))
 model.add(Dense(21, activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
