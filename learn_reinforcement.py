@@ -14,19 +14,14 @@ for i in range(len(dataset)):
             X[i][color].append(dataset[i,color * 54 + face * 9:color * 54 + face * 9 + 9])
 X = np.array(X)
 '''
-X = dataset[:,0:228]#.reshape(len(dataset), 3, 3, 36)
+X = dataset[:,0:36]#.reshape(len(dataset), 3, 3, 36)
 #print(X[0])
-y = dataset[:,228:249]
+y = dataset[:,36:57]
 #print(y[0])
 
 model = Sequential()
-model.add(Dense(228, input_shape=(228,), activation='relu'))
-#model.add(Dropout(0.2))
-model.add(Dense(100, activation='relu'))
-#model.add(Dropout(0.2))
-model.add(Dense(50, activation='relu'))
-#model.add(Dropout(0.2))
-#model.add(Flatten())
+model.add(Dense(36, input_shape=(36,), activation='relu'))
+model.add(Dense(30, activation='relu'))
 model.add(Dense(21, activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -36,8 +31,8 @@ print(model.summary())
 model.fit(X, y, epochs=50, batch_size=10)
 
 dataset = loadtxt('data_test.csv', delimiter=',')
-test_X = dataset[:,0:228] #.reshape(len(dataset), 3, 3, 36)
-test_y = dataset[:,228:249]
+test_X = dataset[:,0:36] #.reshape(len(dataset), 3, 3, 36)
+test_y = dataset[:,36:57]
 prediction = model.predict_classes(test_X)
 
 correct_ratio = 0
@@ -57,8 +52,8 @@ for i in range(len(dataset)):
     error_average += abs(prediction[i] - predicted)
 correct_ratio /= len(dataset)
 error_average /= len(dataset)
-print(correct_ratio)
-print(error_average)
+print('correct ratio', correct_ratio)
+print('average error', error_average)
 print(ans)
 print(predicted_ans)
 
