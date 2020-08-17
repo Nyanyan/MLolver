@@ -14,13 +14,13 @@ for i in range(len(dataset)):
             X[i][color].append(dataset[i,color * 54 + face * 9:color * 54 + face * 9 + 9])
 X = np.array(X)
 '''
-X = dataset[:,0:36]#.reshape(len(dataset), 3, 3, 36)
+X = dataset[:,0:42]#.reshape(len(dataset), 3, 3, 36)
 #print(X[0])
-y = dataset[:,36:57]
+y = dataset[:,42:63]
 #print(y[0])
 
 model = Sequential()
-model.add(Dense(36, input_shape=(36,), activation='relu'))
+model.add(Dense(42, input_shape=(42,), activation='relu'))
 model.add(Dense(30, activation='relu'))
 model.add(Dense(21, activation='sigmoid'))
 
@@ -28,11 +28,11 @@ model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']
 
 print(model.summary())
 
-model.fit(X, y, epochs=50, batch_size=10)
+model.fit(X, y, epochs=200, batch_size=10)
 
 dataset = loadtxt('data_test.csv', delimiter=',')
-test_X = dataset[:,0:36] #.reshape(len(dataset), 3, 3, 36)
-test_y = dataset[:,36:57]
+test_X = dataset[:,0:42] #.reshape(len(dataset), 3, 3, 36)
+test_y = dataset[:,42:63]
 prediction = model.predict_classes(test_X)
 
 correct_ratio = 0

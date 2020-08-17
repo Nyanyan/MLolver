@@ -151,7 +151,50 @@ class Cube:
             for j in range(9):
                 cnt += res[i * 9 + j]
             res_2[i] = cnt
-        return res_2
+        #return res_2
+
+        res_reshape = [[[res[54 * color + 9 * face + i:54 * color + 9 * face + i + 3] for i in range(0, 7, 3)] for face in range(6)] for color in range(6)]
+        res_3 = [0 for _ in range(6)] # 乱雑さ=面にあるステッカーの種類数 x 四辺で接している塊数
+        for face in range(6):
+            species = 0
+            for color in range(6):
+                flag = False
+                for y in range(3):
+                    for x in range(3):
+                        if res_reshape[color][face][y][x] == 1:
+                            species += 1
+                            flag = True
+                        if flag:
+                            break
+                    if flag:
+                        break
+            cnt = 0
+            for color in range(6):
+                marked = [[False for _ in range(3)] for _ in range(3)]
+                for y in range(3):
+                    for x in range(3):
+                        if marked[y][x]:
+                            continue
+                        marked[y][x] = True
+                        if not res_reshape[color][face][y][x]:
+                            continue
+                        cnt += 1
+                        stack = [[y, x]]
+                        dy = [-1, 1, 0, 0]
+                        dx = [0, 0, -1, 1]
+                        while stack:
+                            yy, xx = stack.pop()
+                            for i in range(4):
+                                ny = yy + dy[i]
+                                nx = xx + dx[i]
+                                if 0 <= ny < 3 and 0 <= nx < 3 and res_reshape[ny][nx] and not marked[ny][nx]:
+                                    marked[ny][nx] = True
+                                    stack.append([ny, nx])
+            res_3[face] = (species * cnt) ** 0.5
+        
+        res_all = [i for i in res_2]
+        res_all.extend([i for i in res_3])
+        return res_all
         '''
         res = []
         res.extend(self.Co)
