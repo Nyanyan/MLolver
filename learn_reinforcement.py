@@ -1,9 +1,9 @@
+import keras
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
+from keras.layers import Dense, Dropout, Flatten, Conv3D, MaxPooling3D
 import numpy as np
 from numpy import loadtxt
 
-#X, y, l = load_csv()
 dataset = loadtxt('data.csv', delimiter=',')
 '''
 print(dataset[0])
@@ -14,25 +14,31 @@ for i in range(len(dataset)):
             X[i][color].append(dataset[i,color * 54 + face * 9:color * 54 + face * 9 + 9])
 X = np.array(X)
 '''
-X = dataset[:,0:42]#.reshape(len(dataset), 3, 3, 36)
-#print(X[0])
-y = dataset[:,42:63]
+X = dataset[:,0:324].reshape(len(dataset), 36, 3, 3, 1)
+#print(X[0][0])
+y = dataset[:,324:345]
 #print(y[0])
 
 model = Sequential()
-model.add(Dense(42, input_shape=(42,), activation='relu'))
-model.add(Dense(30, activation='relu'))
+model.add(Conv3D(256, kernel_size=(36, 3, 3), input_shape=(36, 3, 3, 1), activation='relu'))
+model.add(Conv3D(128, (36, 3, 3), activation='relu'))
+model.add(MaxPooling3D(pool_size=(2, 2, 2)))
+model.add(Dropout(0.2))
+model.add(Flatten())
+model.add(Dense(256, activation='relu'))
+model.add(Dropout(0.2))
 model.add(Dense(21, activation='sigmoid'))
 
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 print(model.summary())
 
-model.fit(X, y, epochs=200, batch_size=10)
+model.fit(X, y, epochs=50, batch_size=10)
+
 
 dataset = loadtxt('data_test.csv', delimiter=',')
-test_X = dataset[:,0:42] #.reshape(len(dataset), 3, 3, 36)
-test_y = dataset[:,42:63]
+test_X = dataset[:,0:324] #.reshape(len(dataset), 3, 3, 36)
+test_y = dataset[:,324:345]
 prediction = model.predict_classes(test_X)
 
 correct_ratio = 0
