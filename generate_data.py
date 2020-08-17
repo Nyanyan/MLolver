@@ -26,15 +26,16 @@ def generate(cube, depth, l_twist):
             twist = randint(0, 17)
         n_cube = cube.move(twist)
         arr = n_cube.idx()
-        tmp = [0 for _ in range(21)]
-        tmp[depth + 1] = 1
-        arr.extend(tmp)
+        tmp2 = [0 for _ in range(21)]
+        tmp2[depth + 1] = 1
+        arr.extend(tmp2)
         res.append(arr)
         t[depth + 1] += 1
         generate(n_cube, depth + 1, twist)
 
 res = []
 cube = Cube()
+print(cube.idx())
 #label = list(range(324))
 #label.append('num')
 #res.append(label)
