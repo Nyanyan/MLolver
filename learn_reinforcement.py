@@ -20,18 +20,20 @@ y = dataset[:,324:345]
 #print(y[0])
 
 model = Sequential()
-model.add(Dense(100, input_shape=(3, 3, 36), activation='relu'))
+model.add(Dense(324, input_shape=(3, 3, 36), activation='relu'))
+model.add(Dropout(0.2))
+model.add(Dense(100, activation='relu'))
+model.add(Dropout(0.2))
+model.add(Dense(100, activation='relu'))
 model.add(Dropout(0.2))
 model.add(Flatten())
-model.add(Dense(100, activation='relu'))
-model.add(Dense(100, activation='relu'))
 model.add(Dense(21, activation='sigmoid'))
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 print(model.summary())
 
-model.fit(X, y, epochs=100, batch_size=10)
+model.fit(X, y, epochs=50, batch_size=10)
 
 dataset = loadtxt('data_test.csv', delimiter=',')
 test_X = dataset[:,0:324].reshape(len(dataset), 3, 3, 36)

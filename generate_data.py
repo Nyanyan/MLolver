@@ -19,7 +19,7 @@ def generate(cube, depth, l_twist):
     else:
         tmp = range(18)
     for _ in tmp:
-        if t[depth + 1] >= 100:
+        if t[depth + 1] >= 1000:
             continue
         twist = l_twist
         while twist // 3 == l_twist // 3:

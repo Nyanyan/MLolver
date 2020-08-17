@@ -10,7 +10,7 @@ def distance(puzzle):
     arr = puzzle.idx()
     if arr == solved:
         return 0
-    data = np.array([arr])
+    data = np.array([np.array(arr).reshape(3, 3, 36)])
     '''
     prediction = knn.predict(data)
     res = prediction[0]
