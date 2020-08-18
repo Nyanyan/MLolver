@@ -1,28 +1,22 @@
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten, Conv3D, MaxPooling3D
+from keras.layers import Dense, Dropout, Flatten, Conv3D, MaxPooling3D, Convolution3D
 import numpy as np
 from numpy import loadtxt
 
 dataset = loadtxt('data.csv', delimiter=',')
-'''
-print(dataset[0])
-X = [[[] for _ in range(6)] for _ in range(len(dataset))]
-for i in range(len(dataset)):
-    for color in range(6):
-        for face in range(6):
-            X[i][color].append(dataset[i,color * 54 + face * 9:color * 54 + face * 9 + 9])
-X = np.array(X)
-'''
-X = dataset[:,0:324].reshape(len(dataset), 36, 3, 3, 1)
-#print(X[0][0])
-y = dataset[:,324:345]
-#print(y[0])
+input_shape = (36, 3, 3, 1)
+X = dataset[:,0:324]
+X = X.reshape(-1, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
+print(X.shape)
+y = dataset[:,324]
+y = keras.utils.to_categorical(y, 21)
+print(y.shape)
 
 model = Sequential()
-model.add(Conv3D(256, kernel_size=(36, 3, 3), input_shape=(36, 3, 3, 1), activation='relu'))
+model.add(Conv3D(256, kernel_size=(36, 3, 3), input_shape=input_shape, activation='relu'))
 model.add(Conv3D(128, (36, 3, 3), activation='relu'))
-model.add(MaxPooling3D(pool_size=(2, 2, 2)))
+model.add(MaxPooling3D(pool_size=(3, 3, 3)))
 model.add(Dropout(0.2))
 model.add(Flatten())
 model.add(Dense(256, activation='relu'))
@@ -33,8 +27,7 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 
 print(model.summary())
 
-model.fit(X, y, epochs=50, batch_size=10)
-
+model.fit(X, y, epochs=20, batch_size=10)
 
 dataset = loadtxt('data_test.csv', delimiter=',')
 test_X = dataset[:,0:324] #.reshape(len(dataset), 3, 3, 36)

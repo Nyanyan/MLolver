@@ -19,16 +19,17 @@ def generate(cube, depth, l_twist):
     else:
         tmp = range(18)
     for _ in tmp:
-        if t[depth + 1] >= 1000:
+        if t[depth + 1] >= 100:
             continue
         twist = l_twist
         while twist // 3 == l_twist // 3:
             twist = randint(0, 17)
         n_cube = cube.move(twist)
         arr = n_cube.idx()
-        tmp2 = [0 for _ in range(21)]
-        tmp2[depth + 1] = 1
-        arr.extend(tmp2)
+        arr.append(depth + 1)
+        #tmp2 = [0 for _ in range(21)]
+        #tmp2[depth + 1] = 1
+        #arr.extend(tmp2)
         res.append(arr)
         t[depth + 1] += 1
         generate(n_cube, depth + 1, twist)
