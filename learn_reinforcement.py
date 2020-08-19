@@ -10,10 +10,8 @@ input_shape = (36, 3, 3, 1)
 X = dataset[:,0:324]
 X = X.reshape(-1, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
 X = X.astype('float32')
-print(X.shape)
 y = dataset[:,324]
 y = keras.utils.to_categorical(y, 21)
-print(y.shape)
 
 model = Sequential()
 model.add(Conv3D(filters=64, kernel_size=(3, 3, 3), activation='relu', padding='same', input_shape=X.shape[1:]))
@@ -31,26 +29,6 @@ model.add(Dropout(rate=0.2))
 model.add(Dense(units=21, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-'''
-model = Sequential()
-model.add(Conv3D(filters=32, kernel_size=(36, 3, 3), activation='relu', input_shape=X.shape[1:]))
-model.add(Conv3D(filters=32, kernel_size=(36, 3, 3), activation='relu'))
-model.add(MaxPoolinging3D(pool_size=(2, 2, 2)))
-model.add(Dropout(0.25))
-
-model.add(Conv3D(filters=64, kernel_size=(36, 3, 3), activation='relu'))
-model.add(Conv3D(filters=64, kernel_size=(36, 3, 3), activation='relu'))
-model.add(MaxPoolinging3D(pool_size=(3, 2, 2)))
-model.add(Dropout(0.25))
-
-model.add(Flatten())
-model.add(Dense(512))
-model.add(Activation('relu'))
-model.add(Dropout(0.5))
-model.add(Dense(21))
-model.add(Activation('softmax'))
-model.compile(loss='categorical_crossentropy', optimizer=optimizers, metrics=['accuracy'])
-'''
 print(model.summary())
 
 model.fit(X, y, epochs=20, batch_size=10)
