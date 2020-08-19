@@ -26,6 +26,7 @@ def get_mnist(shape):
     x_train = x_train[:50000]
     t_validate = t_train[50000:]
     t_train = t_train[:50000]
+    print(x_train[0])
 
     return (x_train, t_train), (x_validate, t_validate), (x_test, t_test)
 
