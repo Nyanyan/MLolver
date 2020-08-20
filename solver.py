@@ -10,28 +10,33 @@ def search_distance(arr):
     for i in range(324):
         l = pre_l
         r = pre_r
-        while r - l > 1:
-            c = (r + l) // 2
-            if few_move[c][i] == 0:
-                l = c
+        if few_move[l][i] == 0 and few_move[r][i] == 1:
+            while r - l > 1:
+                c = (r + l) // 2
+                if few_move[c][i] == 0:
+                    l = c
+                else:
+                    r = c
+            if arr[i] == 0:
+                pre_r = l
             else:
-                r = c
-        if arr[i] == 0:
-            pre_r = l
-        else:
-            pre_l = r
-    print(pre_l, pre_r)
-    print(few_move[pre_l][:100])
-    print(arr[:100])
-    if few_move[pre_l][:324] == arr:
-        return few_move[pre_l][324]
-    else:
-        return -1
+                pre_l = r
+        elif few_move[l][i] == 1:
+            if arr[i] == 0:
+                return -1
+        elif few_move[r][i] == 0:
+            if arr[i] == 1:
+                return -1
+        if pre_r == pre_l:
+            break
+    for i in range(pre_l, pre_r + 1):
+        if few_move[i][:324] == arr:
+            return few_move[i][324]
+    return -1
 
 def distance(puzzle):
     arr = puzzle.idx()
     tmp = search_distance(arr)
-    print(tmp)
     if tmp == -1:
         input_shape = (36, 3, 3, 1)
         data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2], input_shape[3])

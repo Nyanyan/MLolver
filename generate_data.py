@@ -18,23 +18,21 @@ def generate(cube, depth, l_twist):
         tmp = range(randint(new_branch_min, new_branch_max))
     else:
         tmp = range(18)
-    for _ in tmp:
-        if t[depth + 1] >= 1000:
-            continue
-        twist = l_twist
-        while twist // 3 == l_twist // 3:
-            twist = randint(0, 17)
-        n_cube = cube.move(twist)
-        arr = n_cube.idx()
-        arr.append(depth + 1)
-        if depth + 1 <= 2:
-            tmp = n_cube.idx()
-            tmp.append(depth + 1)
-            few_move.append(tmp)
-        else:
-            res.append(arr)
-            t[depth + 1] += 1
-        generate(n_cube, depth + 1, twist)
+    if t[depth + 1] < 100:
+        for twist in tmp:
+            if depth > 3:
+                twist = randint(0, 17)
+                while twist // 3 == l_twist // 3:
+                    twist = randint(0, 17)
+            n_cube = cube.move(twist)
+            arr = n_cube.idx()
+            arr.append(depth + 1)
+            if depth + 1 <= 2:
+                few_move.append(arr)
+            else:
+                res.append(arr)
+                t[depth + 1] += 1
+            generate(n_cube, depth + 1, twist)
 
 res = []
 few_move = []
