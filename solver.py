@@ -4,19 +4,40 @@ import numpy as np
 from time import time
 import keras
 
-solved = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+def search_distance(arr):
+    pre_l = 0
+    pre_r = len(few_move) - 1
+    for i in range(324):
+        l = pre_l
+        r = pre_r
+        while r - l > 1:
+            c = (r + l) // 2
+            if few_move[c][i] == 0:
+                l = c
+            else:
+                r = c
+        if arr[i] == 0:
+            pre_r = l
+        else:
+            pre_l = r
+    print(pre_l, pre_r)
+    print(few_move[pre_l][:100])
+    print(arr[:100])
+    if few_move[pre_l][:324] == arr:
+        return few_move[pre_l][324]
+    else:
+        return -1
 
 def distance(puzzle):
     arr = puzzle.idx()
-    if arr == solved:
-        return 0
-    input_shape = (36, 3, 3, 1)
-    data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
-    res = model.predict_classes(data)[0]
-    if res == 0:
-        res = 1
-    #print(res)
-    return res
+    tmp = search_distance(arr)
+    print(tmp)
+    if tmp == -1:
+        input_shape = (36, 3, 3, 1)
+        data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
+        return model.predict_classes(data)[0]
+    else:
+        return tmp
 
 def search(puzzle, depth, dis):
     global path
@@ -60,6 +81,11 @@ def solver(puzzle):
             print(time() - strt, 'sec')
             break
 
+few_move = []
+with open('few_move.csv', mode='r') as f:
+    for line in map(str.strip, f):
+        few_move.append([int(i) for i in line.replace('\n', '').split(',')])
+few_move.sort()
 
 #                  0     1     2    3     4    5     6     7    8     9    10    11    12   13    14    15   16    17
 move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", "D'", "F", "F2", "F'", "B", "B2", "B'"]

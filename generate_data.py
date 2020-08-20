@@ -31,11 +31,9 @@ def generate(cube, depth, l_twist):
             tmp = n_cube.idx()
             tmp.append(depth + 1)
             few_move.append(tmp)
-        #tmp2 = [0 for _ in range(21)]
-        #tmp2[depth + 1] = 1
-        #arr.extend(tmp2)
-        res.append(arr)
-        t[depth + 1] += 1
+        else:
+            res.append(arr)
+            t[depth + 1] += 1
         generate(n_cube, depth + 1, twist)
 
 res = []
@@ -55,6 +53,7 @@ with open('data.csv', mode='w') as f:
     for arr in res:
         writer.writerow(arr)
 
+few_move.sort()
 with open('few_move.csv', mode='w') as f:
     writer = csv.writer(f, lineterminator='\n')
     for arr in few_move:
