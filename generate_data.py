@@ -21,7 +21,7 @@ def generate(cube, depth, l_twist):
     else:
         tmp = list(range(18))
         shuffle(tmp)
-    if t[depth] < 100:
+    if t[depth] < 10000:
         l_twists = set([])
         for twist in tmp:
             if depth > all_num:
