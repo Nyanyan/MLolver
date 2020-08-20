@@ -19,7 +19,7 @@ def generate(cube, depth, l_twist):
     else:
         tmp = range(18)
     for _ in tmp:
-        if t[depth + 1] >= 10000:
+        if t[depth + 1] >= 1000:
             continue
         twist = l_twist
         while twist // 3 == l_twist // 3:
@@ -27,6 +27,10 @@ def generate(cube, depth, l_twist):
         n_cube = cube.move(twist)
         arr = n_cube.idx()
         arr.append(depth + 1)
+        if depth + 1 <= 2:
+            tmp = n_cube.idx()
+            tmp.append(depth + 1)
+            few_move.append(tmp)
         #tmp2 = [0 for _ in range(21)]
         #tmp2[depth + 1] = 1
         #arr.extend(tmp2)
@@ -35,7 +39,11 @@ def generate(cube, depth, l_twist):
         generate(n_cube, depth + 1, twist)
 
 res = []
+few_move = []
 cube = Cube()
+tmp = cube.idx()
+tmp.append(0)
+few_move.append(tmp)
 print(cube.idx())
 #label = list(range(324))
 #label.append('num')
@@ -45,4 +53,9 @@ generate(cube, 0, -10)
 with open('data.csv', mode='w') as f:
     writer = csv.writer(f, lineterminator='\n')
     for arr in res:
+        writer.writerow(arr)
+
+with open('few_move.csv', mode='w') as f:
+    writer = csv.writer(f, lineterminator='\n')
+    for arr in few_move:
         writer.writerow(arr)
