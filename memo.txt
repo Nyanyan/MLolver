@@ -1,0 +1,2 @@
+20200820
+loss 2.20 acc 0.22 correct 0.20 error 2.7

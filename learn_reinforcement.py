@@ -2,6 +2,7 @@ import keras
 from keras.models import Sequential
 from keras.layers.convolutional import MaxPooling3D
 from keras.layers import Dense, Dropout, Flatten, Conv3D, Activation
+from keras.callbacks import EarlyStopping
 import numpy as np
 from numpy import loadtxt
 
@@ -14,20 +15,40 @@ y = dataset[:,324]
 y = keras.utils.to_categorical(y, 21)
 
 model = Sequential()
-model.add(Conv3D(filters=128, kernel_size=(3, 3, 3), activation='relu', padding='same', input_shape=X.shape[1:]))
-model.add(Conv3D(filters=128, kernel_size=(3, 3, 3), activation='relu', padding='same'))
+model.add(Conv3D(filters=64, kernel_size=(3, 3, 3), activation='relu', padding='same', input_shape=X.shape[1:]))
+model.add(Conv3D(filters=64, kernel_size=(3, 3, 3), activation='relu', padding='same'))
 model.add(MaxPooling3D(pool_size=(2, 2, 2), padding='same'))
-model.add(Conv3D(filters=256, kernel_size=(3, 3, 3), activation='relu', padding='same'))
-model.add(Conv3D(filters=256, kernel_size=(3, 3, 3), activation='relu', padding='same'))
+model.add(Conv3D(filters=128, kernel_size=(3, 3, 3), activation='relu', padding='same'))
+model.add(Conv3D(filters=128, kernel_size=(3, 3, 3), activation='relu', padding='same'))
 model.add(MaxPooling3D(pool_size=(2, 2, 2), padding='same'))
 model.add(Flatten())
 model.add(Dropout(rate=0.2))
-model.add(Dense(units=2048, activation='relu'))
+model.add(Dense(units=1024, activation='relu'))
 model.add(Dropout(rate=0.2))
-model.add(Dense(units=2048, activation='relu'))
+model.add(Dense(units=1024, activation='relu'))
 model.add(Dropout(rate=0.2))
 model.add(Dense(units=21, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+'''
+model = Sequential()
+model.add(Conv3D(filters=2, kernel_size=(3, 3, 3), activation='relu', padding='same', input_shape=X.shape[1:]))
+model.add(Conv3D(filters=2, kernel_size=(3, 3, 3), activation='relu', padding='same'))
+model.add(MaxPooling3D(pool_size=(2, 2, 2), padding='same'))
+model.add(Conv3D(filters=2, kernel_size=(3, 3, 3), activation='relu', padding='same'))
+model.add(Conv3D(filters=2, kernel_size=(3, 3, 3), activation='relu', padding='same'))
+model.add(MaxPooling3D(pool_size=(2, 2, 2), padding='same'))
+model.add(Flatten())
+model.add(Dropout(rate=0.2))
+model.add(Dense(units=2, activation='relu'))
+model.add(Dropout(rate=0.2))
+model.add(Dense(units=2, activation='relu'))
+model.add(Dropout(rate=0.2))
+model.add(Dense(units=21, activation='softmax'))
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+'''
+
+#early_stopping =  EarlyStopping(monitor='val_loss', min_delta=0.0, patience=2)
+
 
 print(model.summary())
 
