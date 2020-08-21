@@ -7,6 +7,7 @@ move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", 
 t = [0 for _ in range(21)]
 
 max_depth = 20
+'''
 all_num = 4
 new_branch_min = 1
 new_branch_max = 2
@@ -37,6 +38,16 @@ def generate(cube, depth, l_twist):
             else:
                 few_move.append(arr)
             generate(n_cube, depth, twist)
+'''
+
+def generate(depth, l_twist, cube):
+    if depth == 0:
+        return cube
+    twist = randint(0, 17)
+    while twist // 3 == l_twist // 3:
+        twist = randint(0, 17)
+    cube = cube.move(twist)
+    return cube
 
 res = []
 few_move = []
@@ -48,7 +59,12 @@ print(cube.idx())
 #label = list(range(324))
 #label.append('num')
 #res.append(label)
-generate(cube, 0, -10)
+#generate(cube, 0, -10)
+for depth in range(21):
+    for _ in range(100):
+        tmp = generate(depth, -10, Cube()).idx()
+        tmp.append(depth)
+        res.append(tmp)
 
 with open('data_test.csv', mode='w') as f:
     writer = csv.writer(f, lineterminator='\n')

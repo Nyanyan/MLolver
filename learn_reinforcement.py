@@ -8,14 +8,14 @@ import numpy as np
 from numpy import loadtxt
 import matplotlib.pyplot as plt
 
-model_num = 3
+model_num = 1
 
 dataset = loadtxt('data.csv', delimiter=',')
-input_shape = (24, 12, 1)
-X = dataset[:,0:288]
+input_shape = (36, 3, 3)
+X = dataset[:,0:324]
 X = X.reshape(-1, input_shape[0], input_shape[1], input_shape[2])
 X = X.astype('float32')
-y = dataset[:,288]
+y = dataset[:,324]
 y = keras.utils.to_categorical(y, 21)
 
 models = []
@@ -24,7 +24,7 @@ history = []
 for _ in range(model_num):
     model = Sequential()
     model.add(Conv2D(filters=64, kernel_size=1, activation='relu', padding='same', input_shape=X.shape[1:]))
-    for _ in range(2):
+    for _ in range(1):
         model.add(BatchNormalization())
         model.add(Conv2D(filters=64, kernel_size=3, activation='relu', padding='same'))
     #model.add(Conv2D(filters=64, kernel_size=5, activation='relu', padding='same'))
@@ -44,7 +44,7 @@ for _ in range(model_num):
 
     print(model.summary())
 
-    history.append(model.fit(X, y, epochs=1, batch_size=32))
+    history.append(model.fit(X, y, epochs=10, batch_size=32))
 
     models.append(model)
 
@@ -53,9 +53,9 @@ for _ in range(model_num):
 
 
 dataset = loadtxt('data_test.csv', delimiter=',')
-test_X = dataset[:,0:288]
+test_X = dataset[:,0:324]
 test_X = test_X.reshape(-1, input_shape[0], input_shape[1], input_shape[2])
-test_y = dataset[:,288]
+test_y = dataset[:,324]
 test_y = keras.utils.to_categorical(test_y, 21)
 
 for i in range(model_num):
@@ -88,7 +88,7 @@ for i in range(model_num):
     print(ans)
     print(predicted_ans)
 
-prediction_merged = [int(round(sum(prediction[i][j] for i in range(model_num)) / model_num)) for j in range(len(dataset))]
+prediction_merged = [int(round(sum(prediction[i][j] for i in range(model_num)) / model_num)) for j in range(len(dataset))] # soft
 correct_ratio = 0
 error_average = 0
 ans = [0 for _ in range(21)]
@@ -115,18 +115,17 @@ print(predicted_ans)
 acc = []
 loss = []
 for i in range(model_num):
-    model[i].save('model' + str(i) + '.h5', include_optimizer=False)
+    models[i].save('model' + str(i) + '.h5', include_optimizer=False)
 
     acc.append(history[i].history['accuracy'])
     #val_acc = history.history['val_acc']
     loss.append(history[i].history['loss'])
     #val_loss = history.history['val_loss']
-
-epochs = range(len(acc))
+epochs = range(len(acc[0]))
 
 # 1) Accracy Plt
-for i in range(3):
-    plt.plot(epochs, acc[i], 'bo' ,label = 'training acc')
+for i in range(model_num):
+    plt.plot(epochs, acc[i] ,label = 'training acc' + str(i))
 #plt.plot(epochs, val_acc, 'b' , label= 'validation acc')
 plt.title('Training and Validation acc')
 plt.legend()
@@ -134,8 +133,8 @@ plt.legend()
 plt.figure()
 
 # 2) Loss Plt
-for i in range(3):
-    plt.plot(epochs, loss[i], 'bo' ,label = 'training loss')
+for i in range(model_num):
+    plt.plot(epochs, loss[i] ,label = 'training loss' + str(i))
 #plt.plot(epochs, val_loss, 'b' , label= 'validation loss')
 plt.title('Training and Validation loss')
 plt.legend()
