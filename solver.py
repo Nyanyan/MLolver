@@ -38,8 +38,8 @@ def distance(puzzle):
     arr = puzzle.idx()
     tmp = search_distance(arr)
     if tmp == -1:
-        input_shape = (36, 3, 3, 1)
-        data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
+        input_shape = (36, 3, 3)
+        data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2])
         arr = model.predict(data)[0]
         mx = 0
         res = -1

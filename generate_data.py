@@ -26,16 +26,16 @@ def generate(cube, depth, l_twist):
     else:
         tmp = list(range(18))
         shuffle(tmp)
-    if t[depth] < 100000:
+    if t[depth] < 100:
         for twist in tmp:
             n_cube = cube.move(twist)
             arr = n_cube.idx()
             arr.append(depth)
-            if depth <= all_num:
-                pass#few_move.append(arr)
-            else:
+            if True or depth > all_num:
                 res.append(arr)
                 t[depth] += 1
+            else:
+                few_move.append(arr)
             generate(n_cube, depth, twist)
 
 res = []
@@ -50,7 +50,7 @@ print(cube.idx())
 #res.append(label)
 generate(cube, 0, -10)
 
-with open('data.csv', mode='w') as f:
+with open('data_test.csv', mode='w') as f:
     writer = csv.writer(f, lineterminator='\n')
     for arr in res:
         writer.writerow(arr)

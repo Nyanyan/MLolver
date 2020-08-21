@@ -125,6 +125,7 @@ class Cube:
         res.extend(self.Eo)
         return res
         '''
+        '''
         res = [0 for _ in range(324)]
         for i in range(6):
             res[i * 9 + 4 + i * 54] = 1
@@ -144,6 +145,7 @@ class Cube:
             for i, j in enumerate(edge_stickers[edge_idx]):
                 color = edge_colors[edge][(i - eo) % 2]
                 res[j + color * 54] = 1
+        '''
         '''
         res_2 = [0 for _ in range(36)]
         for i in range(36):
@@ -209,6 +211,31 @@ class Cube:
             tmp[self.Ep[edge]] = 1
             res.extend(tmp)
         '''
+        res = []
+        for ep in self.Ep:
+            tmp = [0 for _ in range(12)]
+            tmp[ep] = 1
+            res.extend(tmp)
+        for cp in self.Cp:
+            tmp = [0 for _ in range(12)]
+            tmp[cp] = 1
+            res.extend(tmp)
+        tmp = [0 for _ in range(12)]
+        for i in range(6):
+            tmp[i * 2 + self.Eo[i]] = 1
+        res.extend(tmp)
+        tmp = [0 for _ in range(12)]
+        for i in range(6, 12):
+            tmp[(i - 6) * 2 + self.Eo[i]] = 1
+        res.extend(tmp)
+        tmp = [0 for _ in range(12)]
+        for i in range(4):
+            tmp[i * 3 + self.Co[i]] = 1
+        res.extend(tmp)
+        tmp = [0 for _ in range(12)]
+        for i in range(4, 8):
+            tmp[(i - 4) * 3 + self.Co[i]] = 1
+        res.extend(tmp)
         return res
 
 def face(twist):
