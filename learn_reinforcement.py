@@ -6,6 +6,7 @@ from keras.layers import Dense, Dropout, Flatten, Conv2D, Activation, GlobalAver
 from keras.callbacks import EarlyStopping
 import numpy as np
 from numpy import loadtxt
+import matplotlib.pyplot as plt
 
 dataset = loadtxt('data.csv', delimiter=',')
 input_shape = (36, 3, 3)
@@ -17,10 +18,10 @@ y = keras.utils.to_categorical(y, 21)
 
 
 model = Sequential()
-model.add(Conv2D(filters=128, kernel_size=1, activation='relu', padding='same', input_shape=X.shape[1:]))
+model.add(Conv2D(filters=64, kernel_size=1, activation='relu', padding='same', input_shape=X.shape[1:]))
 for _ in range(4):
     model.add(BatchNormalization())
-    model.add(Conv2D(filters=128, kernel_size=3, activation='relu', padding='same'))
+    model.add(Conv2D(filters=64, kernel_size=3, activation='relu', padding='same'))
 #model.add(Conv2D(filters=64, kernel_size=5, activation='relu', padding='same'))
 #model.add(Conv3D(filters=8, kernel_size=3, activation='relu', padding='same'))
 #model.add(Flatten())
@@ -38,10 +39,10 @@ model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accur
 
 print(model.summary())
 
-model.fit(X, y, epochs=15, batch_size=10)
+history = model.fit(X, y, epochs=2, batch_size=1024)
 
 
-model = keras.models.load_model('model.h5', compile=False)
+#model = keras.models.load_model('model.h5', compile=False)
 
 
 dataset = loadtxt('data_test.csv', delimiter=',')
@@ -77,4 +78,27 @@ print('average error', error_average)
 print(ans)
 print(predicted_ans)
 
-# model.save('model.h5', include_optimizer=False)
+model.save('model.h5', include_optimizer=False)
+
+acc = history.history['accuracy']
+#val_acc = history.history['val_acc']
+loss = history.history['loss']
+#val_loss = history.history['val_loss']
+
+epochs = range(len(acc))
+
+# 1) Accracy Plt
+plt.plot(epochs, acc, 'bo' ,label = 'training acc')
+#plt.plot(epochs, val_acc, 'b' , label= 'validation acc')
+plt.title('Training and Validation acc')
+plt.legend()
+
+plt.figure()
+
+# 2) Loss Plt
+plt.plot(epochs, loss, 'bo' ,label = 'training loss')
+#plt.plot(epochs, val_loss, 'b' , label= 'validation loss')
+plt.title('Training and Validation loss')
+plt.legend()
+
+plt.show()

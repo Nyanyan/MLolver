@@ -17,18 +17,17 @@ def generate(cube, depth, l_twist):
         return
     depth += 1
     if depth > all_num:
-        tmp = range(randint(new_branch_min, new_branch_max))
+        num = randint(new_branch_min, new_branch_max)
+        tmp = []
+        twist = randint(0, 17)
+        while twist // 3 == l_twist // 3 or twist in set(tmp):
+            twist = randint(0, 17)
+        tmp.append(twist)
     else:
         tmp = list(range(18))
         shuffle(tmp)
-    if t[depth] < 1000:
-        l_twists = set([])
+    if t[depth] < 100000:
         for twist in tmp:
-            if depth > all_num:
-                twist = randint(0, 17)
-                while twist // 3 == l_twist // 3 or twist in l_twists:
-                    twist = randint(0, 17)
-                l_twists.add(twist)
             n_cube = cube.move(twist)
             arr = n_cube.idx()
             arr.append(depth)
