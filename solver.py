@@ -40,7 +40,14 @@ def distance(puzzle):
     if tmp == -1:
         input_shape = (36, 3, 3, 1)
         data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
-        return model.predict_classes(data)[0]
+        arr = model.predict(data)[0]
+        mx = 0
+        res = -1
+        for i, j in enumerate(arr):
+            if j > mx:
+                res = i
+                mx = j
+        return res
     else:
         return tmp
 
