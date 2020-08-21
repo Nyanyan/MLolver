@@ -44,7 +44,7 @@ for _ in range(model_num):
 
     print(model.summary())
 
-    history.append(model.fit(X, y, epochs=10, batch_size=32))
+    history.append(model.fit(X, y, epochs=50, batch_size=32))
 
     models.append(model)
 

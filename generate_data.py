@@ -47,7 +47,7 @@ def generate(depth, l_twist, cube):
     while twist // 3 == l_twist // 3:
         twist = randint(0, 17)
     cube = cube.move(twist)
-    return cube
+    return generate(depth - 1, twist, cube)
 
 res = []
 few_move = []
@@ -66,7 +66,7 @@ for depth in range(21):
         tmp.append(depth)
         res.append(tmp)
 
-with open('data_test.csv', mode='w') as f:
+with open('data.csv', mode='w') as f:
     writer = csv.writer(f, lineterminator='\n')
     for arr in res:
         writer.writerow(arr)
