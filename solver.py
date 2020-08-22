@@ -41,15 +41,10 @@ def distance(puzzle):
     if arr == solved:
         return 0
     else:
-        input_shape = (36, 3, 3)
-        data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2])
-        arr = model.predict(data)[0]
-        mx = 0
-        res = -1
-        for i, j in enumerate(arr):
-            if j > mx:
-                res = i
-                mx = j
+        data = np.array([arr]).reshape(1, 36, 3, 3)
+        res = model.predict(data)[0][0]
+        #print(res)
+        res = max(res, 0.05)
         return res
     '''
     tmp = search_distance(arr)
@@ -99,7 +94,7 @@ def solver(puzzle):
     dis = distance(puzzle)
     heapify(que)
     heappush(que, [dis, dis, [], puzzle])
-    weight = 0.5
+    weight = 1 / 20
     cnt = 0
     while que:
         cnt += 1
@@ -134,7 +129,7 @@ with open('few_move.csv', mode='r') as f:
 #                  0     1     2    3     4    5     6     7    8     9    10    11    12   13    14    15   16    17
 move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", "D'", "F", "F2", "F'", "B", "B2", "B'"]
 
-model = keras.models.load_model('models/model-2445-2607.h5', compile=False)
+model = keras.models.load_model('cost.h5', compile=False)
 
 scramble = [move_candidate.index(i) for i in input().split()]
 print('distance', len(scramble))
@@ -143,7 +138,7 @@ print('distance', len(scramble))
 puzzle = Cube()
 for i in scramble:
     puzzle = puzzle.move(i)
-print('predicted', distance(puzzle))
+print('predicted', distance(puzzle) * 20)
 
 strt = time()
 solution = solver(puzzle)

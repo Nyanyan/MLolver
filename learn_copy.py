@@ -122,6 +122,7 @@ def axis(twist):
 
 import tensorflow as tf
 import keras
+'''
 from keras.models import Sequential, Model
 #from keras.layers.convolutional import MaxPooling3D
 from keras.layers.normalization import BatchNormalization
@@ -129,6 +130,7 @@ from keras.layers import Dense, Dropout, Flatten, Input, Conv2D, GlobalAveragePo
 from keras.layers.advanced_activations import LeakyReLU
 from keras.applications.resnet50 import ResNet50
 from keras import optimizers
+'''
 import numpy as np
 from numpy import loadtxt
 import matplotlib.pyplot as plt
@@ -150,14 +152,13 @@ def generate_data_test(num):
     for _ in range(num):
         depth = randint(1, 20)
         res_x.append(generate_p(depth, -10, Cube()).idx())
-        res_y.append(depth)
+        res_y.append(depth / 20)
     res_x = np.array(res_x).reshape(num, 36, 3, 3)
     res_x = res_x.astype('float32')
     return res_x, res_y
 
 def generate_data_m(depth):
     res_x = []
-    res_y = []
     res_x = np.array(generate_p(depth, -10, Cube()).idx()).reshape(36, 3, 3)
     return res_x
 
@@ -200,13 +201,14 @@ def computational_graph():
                         add())
 
     W = 1024
+    #W = 256
     H =    4
 
     return rcompose(conv(W, 1),
                     rcompose(*repeatedly(partial(residual_block, W), H)),
                     global_average_pooling(),
                     dense(1),
-                    relu())  # マイナスの値が出ると面倒な気がするので、ReLUしてみました。
+                    relu())
 
 
 
@@ -230,43 +232,45 @@ def create_generator(batch_size):
             step = randint(1, 20)
 
             xs.append(generate_data_m(step))
-            ys.append(step)
+            ys.append(step / 20)
 
         yield np.array(xs), np.array(ys)
 
-#model_path = Path('./cost.h5')
+model_path = Path('./cost.h5')
 
 if not model_path.exists():
     model = create_model()
-    model.fit_generator(create_generator(200), steps_per_epoch=200, epochs=100)
+    history = model.fit_generator(create_generator(500), steps_per_epoch=100, epochs=100)
     tf.keras.models.save_model(model, 'cost.h5')
     tf.keras.backend.clear_session()
+    acc = history.history['mean_absolute_error']
+    loss = history.history['loss']
+    epochs = range(len(acc))
+
+    plt.plot(epochs, acc, label = 'training error')
+    plt.title('Training error')
+    plt.legend()
+    plt.figure()
+
+    plt.plot(epochs, loss, label = 'training loss')
+    plt.title('Training loss')
+    plt.legend()
+
+    plt.show()
 else:
-    tf.keras.models.load_model('cost.h5')
+    model = tf.keras.models.load_model('cost.h5')
 #model_path.parent.mkdir(exist_ok=True)
 
 
 
 l = 100
 test_X, test_y = generate_data_test(l)
-correct_ratio = 0
 error_average = 0
-ans = [0 for _ in range(21)]
-predicted_ans = [0 for _ in range(21)]
 for j in range(l):
-    tmp = model.predict(np.array([test_X[j]]),batch_size=1,verbose=1)
-    print(tmp)
-    prediction = int(round(tmp[0][0]))
-    ans[prediction] += 1
+    prediction = model.predict(np.array([test_X[j]]),batch_size=1,verbose=1)[0][0]
     predicted = test_y[j]
-    predicted_ans[predicted] += 1
-    if prediction == predicted:
-        correct_ratio += 1
+    print(prediction, predicted)
     error_average += abs(prediction - predicted)
-correct_ratio /= l
 error_average /= l
-print('model', i)
-print('correct ratio', correct_ratio)
 print('average error', error_average)
-print(ans)
-print(predicted_ans)
+print('average error moves', error_average * 20)
