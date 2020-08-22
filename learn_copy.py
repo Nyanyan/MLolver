@@ -143,7 +143,7 @@ def generate_p(depth, l_twist, cube):
     cube = cube.move(twist)
     return generate_p(depth - 1, twist, cube)
 
-'''
+
 def generate_data_test(num):
     res_x = []
     res_y = []
@@ -151,26 +151,14 @@ def generate_data_test(num):
         depth = randint(1, 20)
         res_x.append(generate_p(depth, -10, Cube()).idx())
         res_y.append(depth)
-    res_x = np.array(res_x).reshape(num, input_shape[0], input_shape[1], input_shape[2])
+    res_x = np.array(res_x).reshape(num, 36, 3, 3)
     res_x = res_x.astype('float32')
-    res_y = keras.utils.to_categorical(np.array(res_y), 21)
     return res_x, res_y
 
-def generate_data(num):
-    while True:
-        yield generate_data_test(num)
-'''
 def generate_data_m(depth):
     res_x = []
     res_y = []
-    #depth = randint(1, 20)
-    res_x = np.array(generate_p(depth, -10, Cube()).idx()).reshape(input_shape[0], input_shape[1], input_shape[2])
-    #res_y = [depth]
-    '''
-    res_x = np.array(res_x).reshape(num, input_shape[0], input_shape[1], input_shape[2])
-    res_x = res_x.astype('float32')
-    res_y = keras.utils.to_categorical(np.array(res_y), 21)
-    '''
+    res_x = np.array(generate_p(depth, -10, Cube()).idx()).reshape(36, 3, 3)
     return res_x
 
 
@@ -246,160 +234,39 @@ def create_generator(batch_size):
 
         yield np.array(xs), np.array(ys)
 
-model_path = Path('./cost.h5')
+#model_path = Path('./cost.h5')
 
-model = create_model() if not model_path.exists() else tf.keras.models.load_model(model_path)
-model.fit_generator(create_generator(100), steps_per_epoch=100, epochs=20)
-
-model_path.parent.mkdir(exist_ok=True)
-tf.keras.models.save_model(model, 'cost.h5')
-
-tf.keras.backend.clear_session()
-
-
-
+if not model_path.exists():
+    model = create_model()
+    model.fit_generator(create_generator(200), steps_per_epoch=200, epochs=100)
+    tf.keras.models.save_model(model, 'cost.h5')
+    tf.keras.backend.clear_session()
+else:
+    tf.keras.models.load_model('cost.h5')
+#model_path.parent.mkdir(exist_ok=True)
 
 
-model_num = 1
-input_shape = (36, 3, 3)
-models = []
-history = []
 
-for _ in range(model_num):
-    
-    model = Sequential()
-    model.add(Conv2D(filters=1024, kernel_size=5, activation='relu', padding='same', input_shape=input_shape))
-    model.add(Conv2D(filters=128, kernel_size=5, activation='relu', padding='same'))
-    #model.add(LeakyReLU(alpha=0.3))
-    for _ in range(4):
-        model.add(BatchNormalization())
-        model.add(Conv2D(filters=128, kernel_size=5, activation='relu', padding='same'))
-        model.add(BatchNormalization())
-        model.add(Conv2D(filters=128, kernel_size=5, activation='relu', padding='same'))
-        model.add(BatchNormalization())
-        #model.add(LeakyReLU(alpha=0.3))
-    model.add(GlobalAveragePooling2D())
-    model.add(Dense(units=21, activation='softmax'))
-
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-
-    print(model.summary())
-    history.append(model.fit_generator(generate_data(100), steps_per_epoch=100, epochs=100))
-
-    models.append(model)
-    '''
-    input_tensor = Input(shape=input_shape)
-    ResNet50 = ResNet50(include_top=False, weights=None ,input_tensor=input_tensor)
-
-    top_model = Sequential()
-    top_model.add(Flatten(input_shape=ResNet50.output_shape[1:]))
-    top_model.add(Dense(21, activation='softmax'))
-    model = Model(ResNet50.input, top_model(ResNet50.output))
-
-    model.compile(loss='categorical_crossentropy',
-                optimizer=optimizers.SGD(lr=1e-3, momentum=0.9),
-                metrics=['accuracy'])
-    
-    print(model.summary())
-    history.append(model.fit_generator(generate_data(100), steps_per_epoch=100, epochs=30))
-
-    models.append(model)
-    '''
-
-
-#model = keras.models.load_model('model.h5', compile=False)
-
-'''
-dataset = loadtxt('data_test.csv', delimiter=',')
-test_X = dataset[:,0:324]
-test_X = test_X.reshape(-1, input_shape[0], input_shape[1], input_shape[2])
-test_y = dataset[:,324]
-test_y = keras.utils.to_categorical(test_y, 21)
-'''
 l = 100
 test_X, test_y = generate_data_test(l)
-#prediction = []
-for i in range(model_num):
-    #prediction.append(models[i].predict_classes(test_X))
-    correct_ratio = 0
-    error_average = 0
-    ans = [0 for _ in range(21)]
-    predicted_ans = [0 for _ in range(21)]
-    for j in range(l):
-        arr = models[i].predict(np.array([test_X[j]]),batch_size=1,verbose=1)[0] #np.argmax(model[i].predict(np.array([test_X[j]])))
-        prediction = -1
-        mx = 0
-        for j, k in enumerate(arr):
-            if k > mx:
-                prediction = j
-                mx = k
-        ans[prediction] += 1
-        predicted = -1
-        for k in range(21):
-            if test_y[j][k] == 1:
-                predicted = k
-                break
-        predicted_ans[predicted] += 1
-        if prediction == predicted:
-            correct_ratio += 1
-        error_average += abs(prediction - predicted)
-    correct_ratio /= l
-    error_average /= l
-    print('model', i)
-    print('correct ratio', correct_ratio)
-    print('average error', error_average)
-    print(ans)
-    print(predicted_ans)
-'''
-prediction_merged = [int(round(sum(prediction[i][j] for i in range(model_num)) / model_num)) for j in range(l)] # soft
 correct_ratio = 0
 error_average = 0
 ans = [0 for _ in range(21)]
 predicted_ans = [0 for _ in range(21)]
 for j in range(l):
-    ans[prediction_merged[j]] += 1
-    predicted = -1
-    for k in range(21):
-        if test_y[j][k] == 1:
-            predicted = k
-            break
+    tmp = model.predict(np.array([test_X[j]]),batch_size=1,verbose=1)
+    print(tmp)
+    prediction = int(round(tmp[0][0]))
+    ans[prediction] += 1
+    predicted = test_y[j]
     predicted_ans[predicted] += 1
-    if prediction_merged[j] == predicted:
+    if prediction == predicted:
         correct_ratio += 1
-    error_average += abs(prediction_merged[j] - predicted)
+    error_average += abs(prediction - predicted)
 correct_ratio /= l
 error_average /= l
-print('merged')
+print('model', i)
 print('correct ratio', correct_ratio)
 print('average error', error_average)
 print(ans)
 print(predicted_ans)
-'''
-acc = []
-loss = []
-for i in range(model_num):
-    models[i].save('model' + str(i) + '.h5', include_optimizer=False)
-
-    acc.append(history[i].history['accuracy'])
-    #val_acc = history.history['val_acc']
-    loss.append(history[i].history['loss'])
-    #val_loss = history.history['val_loss']
-epochs = range(len(acc[0]))
-
-# 1) Accracy Plt
-for i in range(model_num):
-    plt.plot(epochs, acc[i], label = 'training acc' + str(i))
-#plt.plot(epochs, val_acc, 'b' , label= 'validation acc')
-plt.title('Training acc')
-plt.legend()
-
-plt.figure()
-
-# 2) Loss Plt
-for i in range(model_num):
-    plt.plot(epochs, loss[i], label = 'training loss' + str(i))
-#plt.plot(epochs, val_loss, 'b' , label= 'validation loss')
-plt.title('Training loss')
-plt.legend()
-
-plt.show()
