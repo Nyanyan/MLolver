@@ -60,7 +60,7 @@ print(cube.idx())
 #label.append('num')
 #res.append(label)
 #generate(cube, 0, -10)
-for depth in range(21):
+for depth in range(1, 21):
     for _ in range(100):
         tmp = generate(depth, -10, Cube()).idx()
         tmp.append(depth)
