@@ -120,13 +120,15 @@ def face(twist):
 def axis(twist):
     return twist // 6
 
-
+import tensorflow as tf
 import keras
-from keras.models import Sequential
+from keras.models import Sequential, Model
 #from keras.layers.convolutional import MaxPooling3D
 from keras.layers.normalization import BatchNormalization
-from keras.layers import Dense, Dropout, Flatten, Conv2D, GlobalAveragePooling2D
-from keras.callbacks import EarlyStopping
+from keras.layers import Dense, Dropout, Flatten, Input, Conv3D, GlobalAveragePooling3D
+from keras.layers.advanced_activations import LeakyReLU
+from keras.applications.resnet50 import ResNet50
+from keras import optimizers
 import numpy as np
 from numpy import loadtxt
 import matplotlib.pyplot as plt
@@ -157,43 +159,45 @@ def generate_data(num):
     while True:
         yield generate_data_test(num)
 
+
 model_num = 1
-input_shape = (36, 3, 3)
-'''
-dataset = loadtxt('data.csv', delimiter=',')
-X = dataset[:,0:324]
-X = X.reshape(-1, input_shape[0], input_shape[1], input_shape[2])
-X = X.astype('float32')
-y = dataset[:,324]
-y = keras.utils.to_categorical(y, 21)
-'''
+input_shape = (3, 3, 36)
 models = []
 history = []
 
 for _ in range(model_num):
+    '''
     model = Sequential()
-    model.add(Conv2D(filters=32, kernel_size=1, activation='relu', padding='same', input_shape=input_shape))
+    model.add(Conv3D(filters=64, kernel_size=5, activation='relu', padding='same', input_shape=input_shape))
+    #model.add(LeakyReLU(alpha=0.3))
     for _ in range(5):
-        model.add(BatchNormalization())
-        model.add(Conv2D(filters=128, kernel_size=3, activation='relu', padding='same'))
-    model.add(GlobalAveragePooling2D())
-    model.add(Dropout(rate=0.2))
-    model.add(Flatten())
-    for _ in range(3):
-        model.add(Dense(units=1024, activation='relu'))
-        model.add(Dense(units=1024, activation='relu'))
-        model.add(Dropout(rate=0.2))
-    model.add(Dense(units=21, activation='sigmoid'))
+        #model.add(BatchNormalization())
+        model.add(Conv3D(filters=64, kernel_size=5, activation='relu', padding='same'))
+        #model.add(LeakyReLU(alpha=0.3))
+    model.add(GlobalAveragePooling3D())
+    model.add(Dense(units=21, activation='softmax'))
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-
     print(model.summary())
+    history.append(model.fit_generator(generate_data(100), steps_per_epoch=100, epochs=20))
+
+    models.append(model)
     '''
-    x, y = generate_data(10000)
-    history.append(model.fit(x, y, epochs=250, batch_size=256))
-    '''
-    history.append(model.fit_generator(generate_data(100), steps_per_epoch=100, epochs=100))
+    input_tensor = Input(shape=input_shape)
+    ResNet50 = ResNet50(include_top=False, weights=None ,input_tensor=input_tensor)
+
+    top_model = Sequential()
+    top_model.add(Flatten(input_shape=ResNet50.output_shape[1:]))
+    top_model.add(Dense(21, activation='softmax'))
+    model = Model(ResNet50.input, top_model(ResNet50.output))
+
+    model.compile(loss='categorical_crossentropy',
+                optimizer=optimizers.SGD(lr=1e-3, momentum=0.9),
+                metrics=['accuracy'])
+    
+    print(model.summary())
+    history.append(model.fit_generator(generate_data(100), steps_per_epoch=100, epochs=20))
 
     models.append(model)
 
