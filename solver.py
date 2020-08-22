@@ -44,6 +44,12 @@ def distance(puzzle):
         data = np.array([arr]).reshape(1, 36, 3, 3)
         res = model.predict(data)[0][0]
         #print(res)
+        a = int(round(res * 20))
+        for _ in range(a):
+            print('=', end='')
+        for _ in range(20 - a):
+            print('.', end='')
+        print('')
         res = max(res, 0.05)
         return res
     '''
@@ -94,7 +100,7 @@ def solver(puzzle):
     dis = distance(puzzle)
     heapify(que)
     heappush(que, [dis, dis, [], puzzle])
-    weight = 1 / 20
+    weight = 1 / 40
     cnt = 0
     while que:
         cnt += 1

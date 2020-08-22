@@ -158,7 +158,6 @@ def generate_data_test(num):
     return res_x, res_y
 
 def generate_data_m(depth):
-    res_x = []
     res_x = np.array(generate_p(depth, -10, Cube()).idx()).reshape(36, 3, 3)
     return res_x
 
@@ -200,9 +199,9 @@ def computational_graph():
                               identity),
                         add())
 
+    #W = 1024
     W = 1024
-    #W = 256
-    H =    4
+    H = 4
 
     return rcompose(conv(W, 1),
                     rcompose(*repeatedly(partial(residual_block, W), H)),
@@ -240,7 +239,7 @@ model_path = Path('./cost.h5')
 
 if not model_path.exists():
     model = create_model()
-    history = model.fit_generator(create_generator(500), steps_per_epoch=100, epochs=100)
+    history = model.fit_generator(create_generator(50), steps_per_epoch=10, epochs=50)
     tf.keras.models.save_model(model, 'cost.h5')
     tf.keras.backend.clear_session()
     acc = history.history['mean_absolute_error']
