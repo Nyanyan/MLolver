@@ -141,7 +141,7 @@ def generate_p(depth, l_twist, cube):
     cube = cube.move(twist)
     return generate_p(depth - 1, twist, cube)
 
-def generate_data(num):
+def generate_data_test(num):
     res_x = []
     res_y = []
     for _ in range(num):
@@ -152,6 +152,10 @@ def generate_data(num):
     res_x = res_x.astype('float32')
     res_y = keras.utils.to_categorical(np.array(res_y), 21)
     return res_x, res_y
+
+def generate_data(num):
+    while True:
+        yield generate_data_test(num)
 
 model_num = 1
 input_shape = (36, 3, 3)
@@ -185,9 +189,11 @@ for _ in range(model_num):
 
 
     print(model.summary())
-
-    x, y = generate_data(100000)
+    '''
+    x, y = generate_data(10000)
     history.append(model.fit(x, y, epochs=250, batch_size=256))
+    '''
+    history.append(model.fit_generator(generate_data(100), steps_per_epoch=100, epochs=100))
 
     models.append(model)
 
@@ -202,7 +208,7 @@ test_y = dataset[:,324]
 test_y = keras.utils.to_categorical(test_y, 21)
 '''
 l = 2000
-test_X, test_y = generate_data(l)
+test_X, test_y = generate_data_test(l)
 prediction = []
 for i in range(model_num):
     prediction.append(models[i].predict_classes(test_X))
