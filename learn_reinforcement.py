@@ -169,11 +169,16 @@ history = []
 for _ in range(model_num):
     model = Sequential()
     model.add(Conv2D(filters=32, kernel_size=1, activation='relu', padding='same', input_shape=input_shape))
-    for _ in range(10):
+    for _ in range(5):
         model.add(BatchNormalization())
         model.add(Conv2D(filters=128, kernel_size=3, activation='relu', padding='same'))
-    model.add(Dropout(rate=0.2))
     model.add(GlobalAveragePooling2D())
+    model.add(Dropout(rate=0.2))
+    model.add(Flatten())
+    for _ in range(3):
+        model.add(Dense(units=1024, activation='relu'))
+        model.add(Dense(units=1024, activation='relu'))
+        model.add(Dropout(rate=0.2))
     model.add(Dense(units=21, activation='sigmoid'))
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -181,8 +186,8 @@ for _ in range(model_num):
 
     print(model.summary())
 
-    x, y = generate_data(10000)
-    history.append(model.fit(x, y, epochs=75, batch_size=256))
+    x, y = generate_data(100000)
+    history.append(model.fit(x, y, epochs=250, batch_size=256))
 
     models.append(model)
 
@@ -263,7 +268,7 @@ epochs = range(len(acc[0]))
 for i in range(model_num):
     plt.plot(epochs, acc[i], label = 'training acc' + str(i))
 #plt.plot(epochs, val_acc, 'b' , label= 'validation acc')
-plt.title('Training and Validation acc')
+plt.title('Training acc')
 plt.legend()
 
 plt.figure()
@@ -272,7 +277,7 @@ plt.figure()
 for i in range(model_num):
     plt.plot(epochs, loss[i], label = 'training loss' + str(i))
 #plt.plot(epochs, val_loss, 'b' , label= 'validation loss')
-plt.title('Training and Validation loss')
+plt.title('Training loss')
 plt.legend()
 
 plt.show()

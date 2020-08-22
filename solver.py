@@ -41,8 +41,8 @@ def distance(puzzle):
     if arr == solved:
         return 0
     else:
-        input_shape = (36, 3, 3, 1)
-        data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
+        input_shape = (36, 3, 3)
+        data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2])
         arr = model.predict(data)[0]
         mx = 0
         res = -1
@@ -99,11 +99,11 @@ def solver(puzzle):
     dis = distance(puzzle)
     heapify(que)
     heappush(que, [dis, dis, [], puzzle])
-    weight = 1
+    weight = 0.5
     cnt = 0
     while que:
         cnt += 1
-        if cnt % 1000 == 0:
+        if cnt % 10 == 0:
             print(cnt)
         _, dis, path, puz = heappop(que)
         if dis == 0:
@@ -124,17 +124,17 @@ def solver(puzzle):
             n_path.append(twist)
             heappush(que, [n_dis + l, n_dis, n_path, n_puz])
     return -1
-
+'''
 few_move = []
 with open('few_move.csv', mode='r') as f:
     for line in map(str.strip, f):
         few_move.append([int(i) for i in line.replace('\n', '').split(',')])
-few_move.sort()
+'''
 
 #                  0     1     2    3     4    5     6     7    8     9    10    11    12   13    14    15   16    17
 move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", "D'", "F", "F2", "F'", "B", "B2", "B'"]
 
-model = keras.models.load_model('models/model-0214-2809.h5', compile=False)
+model = keras.models.load_model('models/model-2445-2607.h5', compile=False)
 
 scramble = [move_candidate.index(i) for i in input().split()]
 print('distance', len(scramble))
