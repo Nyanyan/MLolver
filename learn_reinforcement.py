@@ -114,11 +114,18 @@ class Cube:
                 res[j + color * 54] = 1
         return res
 
+def face(twist):
+    return twist // 3
+
+def axis(twist):
+    return twist // 6
+
+
 import keras
 from keras.models import Sequential
 #from keras.layers.convolutional import MaxPooling3D
 from keras.layers.normalization import BatchNormalization
-from keras.layers import Dense, Dropout, Flatten, Conv2D, Activation, GlobalAveragePooling2D
+from keras.layers import Dense, Dropout, Flatten, Conv2D, GlobalAveragePooling2D
 from keras.callbacks import EarlyStopping
 import numpy as np
 from numpy import loadtxt
@@ -161,19 +168,11 @@ history = []
 
 for _ in range(model_num):
     model = Sequential()
-    model.add(Conv2D(filters=64, kernel_size=1, activation='relu', padding='same', input_shape=input_shape))
-    for _ in range(2):
+    model.add(Conv2D(filters=32, kernel_size=1, activation='relu', padding='same', input_shape=input_shape))
+    for _ in range(10):
         model.add(BatchNormalization())
-        model.add(Conv2D(filters=64, kernel_size=3, activation='relu', padding='same'))
-    #model.add(Conv2D(filters=64, kernel_size=5, activation='relu', padding='same'))
-    #model.add(Conv3D(filters=8, kernel_size=3, activation='relu', padding='same'))
-    #model.add(Flatten())
-    #model.add(Dropout(rate=0.2))
-    #model.add(Dense(units=2048, activation='relu'))
+        model.add(Conv2D(filters=128, kernel_size=3, activation='relu', padding='same'))
     model.add(Dropout(rate=0.2))
-    #model.add(Dense(units=1024, activation='relu'))
-    #model.add(Dropout(rate=0.2))
-    #model.add(GlobalAveragePooling2D(data_format="channels_last"))
     model.add(GlobalAveragePooling2D())
     model.add(Dense(units=21, activation='sigmoid'))
 
@@ -183,20 +182,22 @@ for _ in range(model_num):
     print(model.summary())
 
     x, y = generate_data(10000)
-    history.append(model.fit(x, y, epochs=100, batch_size=128))
+    history.append(model.fit(x, y, epochs=75, batch_size=256))
 
     models.append(model)
 
 
 #model = keras.models.load_model('model.h5', compile=False)
 
-
+'''
 dataset = loadtxt('data_test.csv', delimiter=',')
 test_X = dataset[:,0:324]
 test_X = test_X.reshape(-1, input_shape[0], input_shape[1], input_shape[2])
 test_y = dataset[:,324]
 test_y = keras.utils.to_categorical(test_y, 21)
-
+'''
+l = 2000
+test_X, test_y = generate_data(l)
 prediction = []
 for i in range(model_num):
     prediction.append(models[i].predict_classes(test_X))
@@ -204,7 +205,7 @@ for i in range(model_num):
     error_average = 0
     ans = [0 for _ in range(21)]
     predicted_ans = [0 for _ in range(21)]
-    for j in range(len(dataset)):
+    for j in range(l):
         ans[prediction[i][j]] += 1
         predicted = -1
         for k in range(21):
@@ -215,20 +216,20 @@ for i in range(model_num):
         if prediction[i][j] == predicted:
             correct_ratio += 1
         error_average += abs(prediction[i][j] - predicted)
-    correct_ratio /= len(dataset)
-    error_average /= len(dataset)
+    correct_ratio /= l
+    error_average /= l
     print('model', i)
     print('correct ratio', correct_ratio)
     print('average error', error_average)
     print(ans)
     print(predicted_ans)
 
-prediction_merged = [int(round(sum(prediction[i][j] for i in range(model_num)) / model_num)) for j in range(len(dataset))] # soft
+prediction_merged = [int(round(sum(prediction[i][j] for i in range(model_num)) / model_num)) for j in range(l)] # soft
 correct_ratio = 0
 error_average = 0
 ans = [0 for _ in range(21)]
 predicted_ans = [0 for _ in range(21)]
-for j in range(len(dataset)):
+for j in range(l):
     ans[prediction_merged[j]] += 1
     predicted = -1
     for k in range(21):
@@ -239,8 +240,8 @@ for j in range(len(dataset)):
     if prediction_merged[j] == predicted:
         correct_ratio += 1
     error_average += abs(prediction_merged[j] - predicted)
-correct_ratio /= len(dataset)
-error_average /= len(dataset)
+correct_ratio /= l
+error_average /= l
 print('merged')
 print('correct ratio', correct_ratio)
 print('average error', error_average)

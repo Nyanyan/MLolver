@@ -3,7 +3,8 @@ import pickle
 import numpy as np
 from time import time
 import keras
-
+from heapq import *
+'''
 def search_distance(arr):
     pre_l = 0
     pre_r = len(few_move) - 1
@@ -33,9 +34,24 @@ def search_distance(arr):
         if few_move[i][:324] == arr:
             return few_move[i][324]
     return -1
-
+'''
 def distance(puzzle):
+    solved = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     arr = puzzle.idx()
+    if arr == solved:
+        return 0
+    else:
+        input_shape = (36, 3, 3, 1)
+        data = np.array([arr]).reshape(-1, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
+        arr = model.predict(data)[0]
+        mx = 0
+        res = -1
+        for i, j in enumerate(arr):
+            if j > mx:
+                res = i
+                mx = j
+        return res
+    '''
     tmp = search_distance(arr)
     if tmp == -1:
         input_shape = (36, 3, 3)
@@ -50,6 +66,7 @@ def distance(puzzle):
         return res
     else:
         return tmp
+    '''
 
 def search(puzzle, depth, dis):
     global path
@@ -77,21 +94,36 @@ def search(puzzle, depth, dis):
 
 def solver(puzzle):
     global path
-    print('depth', end=' ',flush=True)
-    strt = time()
+    res = []
+    que = []
     dis = distance(puzzle)
-    for depth in range(30):
-        print(depth, end=' ', flush=True)
-        path = []
-        if search(puzzle, depth, dis):
-            for twist in path:
-                puzzle = puzzle.move(twist)
-            print('')
-            for i in path:
-                print(move_candidate[i], end=' ')
-            print('')
-            print(time() - strt, 'sec')
-            break
+    heapify(que)
+    heappush(que, [dis, dis, [], puzzle])
+    weight = 1
+    cnt = 0
+    while que:
+        cnt += 1
+        if cnt % 1000 == 0:
+            print(cnt)
+        _, dis, path, puz = heappop(que)
+        if dis == 0:
+            return path
+        l0_twist = path[-1] if len(path) >= 1 else -10
+        l1_twist = path[-2] if len(path) >= 2 else -10
+        l = (len(path) + 1) * weight
+        for twist in range(18):
+            if face(twist) == face(l0_twist) or axis(twist) == axis(l0_twist) == axis(l1_twist):
+                continue
+            n_puz = puz.move(twist)
+            n_dis = distance(n_puz)
+            '''
+            if n_dis > dis:
+                continue
+            '''
+            n_path = [i for i in path]
+            n_path.append(twist)
+            heappush(que, [n_dis + l, n_dis, n_path, n_puz])
+    return -1
 
 few_move = []
 with open('few_move.csv', mode='r') as f:
@@ -101,11 +133,8 @@ few_move.sort()
 
 #                  0     1     2    3     4    5     6     7    8     9    10    11    12   13    14    15   16    17
 move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", "D'", "F", "F2", "F'", "B", "B2", "B'"]
-'''
-filename = 'model.sav'
-knn = pickle.load(open(filename, 'rb'))
-'''
-model = keras.models.load_model('model.h5', compile=False)
+
+model = keras.models.load_model('models/model-0214-2809.h5', compile=False)
 
 scramble = [move_candidate.index(i) for i in input().split()]
 print('distance', len(scramble))
@@ -116,5 +145,9 @@ for i in scramble:
     puzzle = puzzle.move(i)
 print('predicted', distance(puzzle))
 
-path = []
-solver(puzzle)
+strt = time()
+solution = solver(puzzle)
+print(time() - strt, 'sec')
+if solution == -1:
+    print('error')
+print(' '.join([move_candidate[i] for i in solution]))
