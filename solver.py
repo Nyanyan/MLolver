@@ -42,15 +42,9 @@ def distance(puzzle):
         return 0
     else:
         data = np.array([arr]).reshape(1, 36, 3, 3)
-        res = model.predict(data)[0][0]
+        res = int(round(model.predict(data, batch_size=10000)[0][0]))
         #print(res)
-        a = int(round(res * 20))
-        for _ in range(a):
-            print('=', end='')
-        for _ in range(20 - a):
-            print('.', end='')
-        print('')
-        res = max(res, 0.05)
+        res = max(res, 1)
         return res
     '''
     tmp = search_distance(arr)
@@ -100,13 +94,18 @@ def solver(puzzle):
     dis = distance(puzzle)
     heapify(que)
     heappush(que, [dis, dis, [], puzzle])
-    weight = 1 / 40
+    weight = 0.6
     cnt = 0
     while que:
         cnt += 1
         if cnt % 10 == 0:
-            print(cnt)
+            pass#print(cnt)
         _, dis, path, puz = heappop(que)
+        for _ in range(dis):
+            print('=', end='')
+        for _ in range(20 - dis):
+            print('.', end='')
+        print(len(path))
         if dis == 0:
             return path
         l0_twist = path[-1] if len(path) >= 1 else -10
@@ -117,10 +116,8 @@ def solver(puzzle):
                 continue
             n_puz = puz.move(twist)
             n_dis = distance(n_puz)
-            '''
-            if n_dis > dis:
+            if n_dis > dis + 4:
                 continue
-            '''
             n_path = [i for i in path]
             n_path.append(twist)
             heappush(que, [n_dis + l, n_dis, n_path, n_puz])
@@ -144,7 +141,7 @@ print('distance', len(scramble))
 puzzle = Cube()
 for i in scramble:
     puzzle = puzzle.move(i)
-print('predicted', distance(puzzle) * 20)
+print('predicted', distance(puzzle))
 
 strt = time()
 solution = solver(puzzle)

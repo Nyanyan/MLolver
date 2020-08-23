@@ -113,6 +113,15 @@ class Cube:
                 color = edge_colors[edge][(i - eo) % 2]
                 res[j + color * 54] = 1
         return res
+        '''
+        res_2 = [-1 for _ in range(324)]
+        for face in range(6):
+            for color in range(6):
+                for y in range(3):
+                    for x in range(3):
+                        res_2[y * 108 + x * 36 + face * 6 + color] = res[face * 54 + color * 9 + y * 3 + x]
+        return res_2
+        '''
 
 def face(twist):
     return twist // 3
@@ -152,7 +161,7 @@ def generate_data_test(num):
     for _ in range(num):
         depth = randint(1, 20)
         res_x.append(generate_p(depth, -10, Cube()).idx())
-        res_y.append(depth / 20)
+        res_y.append(depth)
     res_x = np.array(res_x).reshape(num, 36, 3, 3)
     res_x = res_x.astype('float32')
     return res_x, res_y
@@ -200,7 +209,7 @@ def computational_graph():
                         add())
 
     #W = 1024
-    W = 1024
+    W = 512
     H = 4
 
     return rcompose(conv(W, 1),
@@ -231,7 +240,7 @@ def create_generator(batch_size):
             step = randint(1, 20)
 
             xs.append(generate_data_m(step))
-            ys.append(step / 20)
+            ys.append(step)
 
         yield np.array(xs), np.array(ys)
 
@@ -239,7 +248,7 @@ model_path = Path('./cost.h5')
 
 if not model_path.exists():
     model = create_model()
-    history = model.fit_generator(create_generator(50), steps_per_epoch=10, epochs=50)
+    history = model.fit_generator(create_generator(1000), steps_per_epoch=10, epochs=5000)
     tf.keras.models.save_model(model, 'cost.h5')
     tf.keras.backend.clear_session()
     acc = history.history['mean_absolute_error']
@@ -262,14 +271,18 @@ else:
 
 
 
-l = 100
+l = 200
 test_X, test_y = generate_data_test(l)
 error_average = 0
+correct_ratio = [0 for _ in range(25)]
 for j in range(l):
-    prediction = model.predict(np.array([test_X[j]]),batch_size=1,verbose=1)[0][0]
+    prediction = int(round(model.predict(np.array([test_X[j]]),batch_size=10000)[0][0]))
     predicted = test_y[j]
-    print(prediction, predicted)
+    correct_ratio[abs(predicted - prediction)] += 1
+    #print(prediction, predicted)
     error_average += abs(prediction - predicted)
 error_average /= l
+#correct_ratio /= l
+print('correct ratio', correct_ratio)
 print('average error', error_average)
-print('average error moves', error_average * 20)
+#print('average error moves', error_average * 20)
