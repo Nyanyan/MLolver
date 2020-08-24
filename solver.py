@@ -42,9 +42,7 @@ def distance(puzzle):
         return 0
     else:
         data = np.array([arr]).reshape(1, 36, 3, 3)
-        res = int(round(model.predict(data, batch_size=10000)[0][0]))
-        #print(res)
-        res = max(res, 1)
+        res = max(1, model.predict(data, batch_size=10000)[0][0])
         return res
     '''
     tmp = search_distance(arr)
@@ -62,7 +60,7 @@ def distance(puzzle):
     else:
         return tmp
     '''
-
+'''
 def search(puzzle, depth, dis):
     global path
     if depth == 0:
@@ -86,6 +84,7 @@ def search(puzzle, depth, dis):
                     return True
                 path.pop()
         return False
+'''
 
 def solver(puzzle):
     global path
@@ -100,27 +99,39 @@ def solver(puzzle):
         cnt += 1
         if cnt % 10 == 0:
             pass#print(cnt)
-        _, dis, path, puz = heappop(que)
-        for _ in range(dis):
+        a, dis, path, puz = heappop(que)
+        dis_int = int(round(dis))
+        for _ in range(dis_int):
             print('=', end='')
-        for _ in range(20 - dis):
+        for _ in range(20 - dis_int):
             print('.', end='')
-        print(len(path))
+        print(len(path), a)
         if dis == 0:
             return path
         l0_twist = path[-1] if len(path) >= 1 else -10
         l1_twist = path[-2] if len(path) >= 2 else -10
         l = (len(path) + 1) * weight
-        for twist in range(18):
-            if face(twist) == face(l0_twist) or axis(twist) == axis(l0_twist) == axis(l1_twist):
+        twist = 0
+        while twist < 18:
+            if face(twist) == face(l0_twist):
+                twist += 1
+                continue
+            if axis(twist) == axis(l0_twist) == axis(l1_twist):
+                twist = skip_axis[twist]
                 continue
             n_puz = puz.move(twist)
             n_dis = distance(n_puz)
-            if n_dis > dis + 4:
+            offset = 2
+            if n_dis > dis + offset:
+                twist = skip_axis[twist]
+                continue
+            if n_dis == dis + offset:
+                twist += 1
                 continue
             n_path = [i for i in path]
             n_path.append(twist)
             heappush(que, [n_dis + l, n_dis, n_path, n_puz])
+            twist += 1
     return -1
 '''
 few_move = []
@@ -131,6 +142,7 @@ with open('few_move.csv', mode='r') as f:
 
 #                  0     1     2    3     4    5     6     7    8     9    10    11    12   13    14    15   16    17
 move_candidate = ["R", "R2", "R'", "L", "L2", "L'", "U", "U2", "U'", "D", "D2", "D'", "F", "F2", "F'", "B", "B2", "B'"]
+skip_axis = [3, 3, 3, 6, 6, 6, 9, 9, 9, 12, 12, 12, 15, 15, 15, 18, 18, 18]
 
 model = keras.models.load_model('cost.h5', compile=False)
 
@@ -147,5 +159,6 @@ strt = time()
 solution = solver(puzzle)
 print(time() - strt, 'sec')
 if solution == -1:
-    print('error')
-print(' '.join([move_candidate[i] for i in solution]))
+    print('failed!')
+else:
+    print(' '.join([move_candidate[i] for i in solution]))

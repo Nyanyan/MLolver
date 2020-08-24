@@ -140,6 +140,7 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.applications.resnet50 import ResNet50
 from keras import optimizers
 '''
+from keras.callbacks import ModelCheckpoint
 import numpy as np
 from numpy import loadtxt
 import matplotlib.pyplot as plt
@@ -248,7 +249,14 @@ model_path = Path('./cost.h5')
 
 if not model_path.exists():
     model = create_model()
-    history = model.fit_generator(create_generator(1000), steps_per_epoch=10, epochs=5000)
+    # checkpointの設定
+    checkpoint = ModelCheckpoint(
+                        filepath="./model_during/model-{epoch:02d}-{mean_absolute_error:.2f}.h5",
+                        monitor='mean_absolute_error',
+                        save_best_only=True,
+                        period=1,
+                    )
+    history = model.fit_generator(create_generator(100), steps_per_epoch=10, epochs=1000, callbacks=[checkpoint]) # 1000, 10, 5000
     tf.keras.models.save_model(model, 'cost.h5')
     tf.keras.backend.clear_session()
     acc = history.history['mean_absolute_error']
