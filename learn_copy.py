@@ -256,7 +256,7 @@ if not model_path.exists():
                         save_best_only=True,
                         period=1,
                     )
-    history = model.fit_generator(create_generator(100), steps_per_epoch=10, epochs=1000, callbacks=[checkpoint]) # 1000, 10, 5000
+    history = model.fit_generator(create_generator(100), steps_per_epoch=5, epochs=100, callbacks=[checkpoint]) # 1000, 10, 5000
     tf.keras.models.save_model(model, 'cost.h5')
     tf.keras.backend.clear_session()
     acc = history.history['mean_absolute_error']
