@@ -93,7 +93,7 @@ class Cube:
         return Cube(cp=self.move_cp(mov), co=self.move_co(mov), ep=self.move_ep(mov), eo=self.move_eo(mov))
     
     def idx(self):
-        '''
+        
         res = [0 for _ in range(324)]
         for i in range(6):
             res[i * 9 + 4 + i * 54] = 1
@@ -114,6 +114,7 @@ class Cube:
                 color = edge_colors[edge][(i - eo) % 2]
                 res[j + color * 54] = 1
         return res
+        '''
         res_2 = [-1 for _ in range(324)]
         for face in range(6):
             for color in range(6):
@@ -121,7 +122,7 @@ class Cube:
                     for x in range(3):
                         res_2[y * 108 + x * 36 + face * 6 + color] = res[face * 54 + color * 9 + y * 3 + x]
         return res_2
-        '''
+
         res_edge = []
         for i in range(12):
             tmp = [0 for _ in range(12)]
@@ -132,6 +133,7 @@ class Cube:
             eo.append(self.Eo[i])
         res_edge.extend(eo)
         return res_edge
+        '''
 
 def face(twist):
     return twist // 3
@@ -173,12 +175,12 @@ def generate_data_test(num):
         depth = randint(1, 20)
         res_x.append(generate_p(depth, -10, Cube()).idx())
         res_y.append(depth)
-    res_x = np.array(res_x).reshape(num, 13, 12, 1)
+    res_x = np.array(res_x).reshape(num, 36, 3, 3)
     res_x = res_x.astype('float32')
     return res_x, res_y
 
 def generate_data_m(depth):
-    res_x = np.array(generate_p(depth, -10, Cube()).idx()).reshape(13, 12, 1)
+    res_x = np.array(generate_p(depth, -10, Cube()).idx()).reshape(36, 3, 3)
     return res_x
 
 
@@ -235,7 +237,7 @@ def computational_graph():
 
 
 def create_model():
-    result = tf.keras.Model(*juxt(identity, computational_graph())(tf.keras.Input(shape=(13, 12, 1))))
+    result = tf.keras.Model(*juxt(identity, computational_graph())(tf.keras.Input(shape=(36, 3, 3))))
 
     result.compile(optimizer='adam', loss='mean_squared_error', metrics=['mean_absolute_error'])
     result.summary()
@@ -291,18 +293,38 @@ else:
 
 
 
-l = 200
+l = 1000
+plt_x = []
+plt_y = []
 test_X, test_y = generate_data_test(l)
 error_average = 0
 correct_ratio = [0 for _ in range(25)]
+pre_tmp = 0
 for j in range(l):
-    prediction = int(round(model.predict(np.array([test_X[j]]),batch_size=10000)[0][0]))
+    tmp = int(j / l * 10)
+    if pre_tmp != tmp:
+        pre_tmp = tmp
+        for _ in range(tmp):
+            print('=', end='')
+        for _ in range(10 - tmp):
+            print('.', end='')
+        print('')
+    prediction = float(model.predict(np.array([test_X[j]]),batch_size=10)[0][0])
+    prediction_int = int(round(prediction))
     predicted = test_y[j]
-    correct_ratio[abs(predicted - prediction)] += 1
+    plt_x.append(predicted)
+    plt_y.append(prediction)
+    correct_ratio[abs(predicted - prediction_int)] += 1
     #print(prediction, predicted)
-    error_average += abs(prediction - predicted)
+    error_average += abs(predicted - prediction)
 error_average /= l
 #correct_ratio /= l
 print('correct ratio', correct_ratio)
 print('average error', error_average)
 #print('average error moves', error_average * 20)
+
+plt.scatter(plt_x, plt_y)
+plt.plot(range(20), range(20), label = 'Theoretical Value')
+plt.title('Training error')
+plt.figure()
+plt.show()
