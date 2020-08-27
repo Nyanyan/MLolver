@@ -93,6 +93,7 @@ class Cube:
         return Cube(cp=self.move_cp(mov), co=self.move_co(mov), ep=self.move_ep(mov), eo=self.move_eo(mov))
     
     def idx(self):
+        '''
         res = [0 for _ in range(324)]
         for i in range(6):
             res[i * 9 + 4 + i * 54] = 1
@@ -113,7 +114,6 @@ class Cube:
                 color = edge_colors[edge][(i - eo) % 2]
                 res[j + color * 54] = 1
         return res
-        '''
         res_2 = [-1 for _ in range(324)]
         for face in range(6):
             for color in range(6):
@@ -122,6 +122,16 @@ class Cube:
                         res_2[y * 108 + x * 36 + face * 6 + color] = res[face * 54 + color * 9 + y * 3 + x]
         return res_2
         '''
+        res_edge = []
+        for i in range(12):
+            tmp = [0 for _ in range(12)]
+            tmp[self.Ep[i]] = 1
+            res_edge.extend(tmp)
+        eo = []
+        for i in range(12):
+            eo.append(self.Eo[i])
+        res_edge.extend(eo)
+        return res_edge
 
 def face(twist):
     return twist // 3
@@ -163,12 +173,12 @@ def generate_data_test(num):
         depth = randint(1, 20)
         res_x.append(generate_p(depth, -10, Cube()).idx())
         res_y.append(depth)
-    res_x = np.array(res_x).reshape(num, 36, 3, 3)
+    res_x = np.array(res_x).reshape(num, 13, 12, 1)
     res_x = res_x.astype('float32')
     return res_x, res_y
 
 def generate_data_m(depth):
-    res_x = np.array(generate_p(depth, -10, Cube()).idx()).reshape(36, 3, 3)
+    res_x = np.array(generate_p(depth, -10, Cube()).idx()).reshape(13, 12, 1)
     return res_x
 
 
@@ -210,8 +220,8 @@ def computational_graph():
                         add())
 
     #W = 1024
-    W = 512
-    H = 4
+    W = 32
+    H = 2
 
     return rcompose(conv(W, 1),
                     rcompose(*repeatedly(partial(residual_block, W), H)),
@@ -225,7 +235,7 @@ def computational_graph():
 
 
 def create_model():
-    result = tf.keras.Model(*juxt(identity, computational_graph())(tf.keras.Input(shape=(36, 3, 3))))
+    result = tf.keras.Model(*juxt(identity, computational_graph())(tf.keras.Input(shape=(13, 12, 1))))
 
     result.compile(optimizer='adam', loss='mean_squared_error', metrics=['mean_absolute_error'])
     result.summary()
@@ -245,6 +255,8 @@ def create_generator(batch_size):
 
         yield np.array(xs), np.array(ys)
 
+print(Cube().idx())
+
 model_path = Path('./cost.h5')
 
 if not model_path.exists():
@@ -256,7 +268,7 @@ if not model_path.exists():
                         save_best_only=True,
                         period=1,
                     )
-    history = model.fit_generator(create_generator(100), steps_per_epoch=5, epochs=100, callbacks=[checkpoint]) # 1000, 10, 5000
+    history = model.fit_generator(create_generator(100), steps_per_epoch=10, epochs=100, callbacks=[checkpoint]) # 1000, 10, 5000
     tf.keras.models.save_model(model, 'cost.h5')
     tf.keras.backend.clear_session()
     acc = history.history['mean_absolute_error']

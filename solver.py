@@ -36,12 +36,13 @@ def search_distance(arr):
     return -1
 '''
 def distance(puzzle):
+    #solved = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     solved = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     arr = puzzle.idx()
     if arr == solved:
         return 0
     else:
-        data = np.array([arr]).reshape(1, 36, 3, 3)
+        data = np.array([arr]).reshape(1, 36, 3, 3) # edge 13, 12, 1
         res = max(1, model.predict(data, batch_size=10000)[0][0])
         return res
     '''
@@ -90,27 +91,28 @@ def solver(puzzle):
     global path
     res = []
     que = []
-    dis = distance(puzzle)
+    dis_first = distance(puzzle)
     heapify(que)
-    heappush(que, [dis, dis, [], puzzle])
-    weight = 0.6
+    heappush(que, [dis_first, [], puzzle])
+    weight = 1
+    offset = 2
     cnt = 0
     while que:
         cnt += 1
         if cnt % 10 == 0:
             pass#print(cnt)
-        a, dis, path, puz = heappop(que)
+        dis, path, puz = heappop(que)
         dis_int = int(round(dis))
+        l = len(path)
         for _ in range(dis_int):
             print('=', end='')
         for _ in range(20 - dis_int):
             print('.', end='')
-        print(len(path), a)
+        print(l, dis)
         if dis == 0:
             return path
         l0_twist = path[-1] if len(path) >= 1 else -10
         l1_twist = path[-2] if len(path) >= 2 else -10
-        l = (len(path) + 1) * weight
         twist = 0
         while twist < 18:
             if face(twist) == face(l0_twist):
@@ -121,16 +123,12 @@ def solver(puzzle):
                 continue
             n_puz = puz.move(twist)
             n_dis = distance(n_puz)
-            offset = 2
-            if n_dis > dis + offset:
+            if dis_first + offset < n_dis + l * weight:
                 twist = skip_axis[twist]
-                continue
-            if n_dis == dis + offset:
-                twist += 1
                 continue
             n_path = [i for i in path]
             n_path.append(twist)
-            heappush(que, [n_dis + l, n_dis, n_path, n_puz])
+            heappush(que, [n_dis, n_path, n_puz])
             twist += 1
     return -1
 '''
